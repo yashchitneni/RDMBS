@@ -1,0 +1,41 @@
+#ifndef _GRAMMAR
+#define _GRAMMAR
+
+#include "relation.h"
+#include <regex>
+
+/*
+  Main function that takes in the entire input then decides if it is a command or query
+	calls either the command or query function
+*/
+void program(std::string input, std::vector<relation>& tables, std::vector<relation>& views);
+
+/*
+  Command function that takes input and decides which command should be executed
+*/
+void command(std::string input, std::vector<relation>& tables);
+void open_cmd(std::string input, std::vector<relation>& tables);
+void close_cmd(std::string input, std::vector<relation>& tables);
+void write_cmd(std::string input, std::vector<relation>& tables);
+void exit_cmd(std::string input, std::vector<relation>& tables);
+void show_cmd(std::string input, std::vector<relation>& tables);
+void create_cmd(std::string input, std::vector<relation>& tables);
+void update_cmd(std::string input, std::vector<relation>& tables);
+void insert_cmd(std::string input, std::vector<relation>& tables);
+void delete_cmd(std::string input, std::vector<relation>& tables);
+
+/*
+  Query function that takes input and decides what query is wanted
+*/
+void query(std::string input, std::vector<relation>& tables, std::vector<relation>& views);
+relation expr(std::string input, std::vector<relation>& tables);
+relation atomic(std::string input, std::vector<relation>& tables);
+relation selection(std::string input, std::vector<relation>& tables);
+relation projection(std::string input, std::vector<relation>& tables);
+relation renaming(std::string input, std::vector<relation>& tables);
+relation table_union(std::string input, std::vector<relation>& tables);
+relation difference(std::string input, std::vector<relation>& tables);
+relation product(std::string input, std::vector<relation>& tables);
+relation natural_join(std::string input, std::vector<relation>& tables);
+
+#endif
