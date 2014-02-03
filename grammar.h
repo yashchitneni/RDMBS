@@ -34,11 +34,11 @@ private:
   static relation find_relation(std::string input, std::vector<relation>& tables);
   static relation selection(std::string condition, relation table);
   static relation projection(std::string attr_list, relation table);
-  static relation renaming(std::string input, std::vector<relation>& tables);
-  static relation table_union(std::string input, std::vector<relation>& tables);
-  static  relation difference(std::string input, std::vector<relation>& tables);
-  static  relation product(std::string input, std::vector<relation>& tables);
-  static relation natural_join(std::string input, std::vector<relation>& tables);
+  static relation renaming(std::string attr_list, relation table);
+  static relation table_union(relation table1, relation table2);
+  static  relation difference(relation table1, relation table2);
+  static  relation product(relation table1, relation table2);
+  static relation natural_join(relation table1, relation table2);
 };
 
 #endif
