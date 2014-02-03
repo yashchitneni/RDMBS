@@ -14,13 +14,14 @@ map<k, t> t
 class relation{
   const int n_keys;
   const int n_attr;
-  const std::string table_name;
+  std::string table_name;
   void* table;
   std::vector<std::string> commands;
 
 public:
   relation() : n_keys(0), n_attr(0), table_name(""){}
   relation(int num_keys, int num_attr, std::string name);
+  void set_name(std::string name);
   std::string get_name() const;
 };
 
