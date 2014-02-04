@@ -12,7 +12,164 @@ void grammar::program(std::string input, std::vector<relation>& tables){
   return;
 }
 
-void grammar::command(std::string input, std::vector<relation>& tables){}
+void grammar::command(std::string input, std::vector<relation>& tables){
+  std::regex reg_open("^\\s*OPEN");
+  std::regex reg_close("^\\s*CLOSE");
+  std::regex reg_write("^\\s*WRITE");
+  std::regex reg_exit("^\\s*EXIT\\s*$");
+  std::regex reg_show("^\\s*SHOW");
+  std::regex reg_create("^\\s*CREATE TABLE");
+  std::regex reg_update("^\\s*UPDATE");
+  std::regex reg_insert("^\\s*INSERT INTO");
+  std::regex reg_delete("^\\s*DELETE FROM");
+  std::smatch m;
+  if (std::regex_search(input, m, reg_open)){
+	std::printf("Open: %s\n", m.suffix().str().c_str());
+	std::string arg = m.suffix().str();
+	std::regex reg_rel_name("[_[:alpha:]][_\\w]*");
+	if (std::regex_search(arg, m, reg_rel_name)){
+	  std::string rel_name = m.str(); 
+	  //call show function
+	  return;
+	}
+	std::printf("Unable to process \"%s\" as the argument for open\n", input.c_str());
+	return;
+  }
+  if (std::regex_search(input, m, reg_close)){
+	std::printf("Close: %s\n", m.suffix().str().c_str());
+	std::string arg = m.suffix().str();
+	std::regex reg_rel_name("[_[:alpha:]][_\\w]*");
+	if (std::regex_search(arg, m, reg_rel_name)){
+	  std::string rel_name = m.str();
+	  //call close function
+	  return;
+	}
+	std::printf("Unable to process \"%s\" as the argument for close\n", input.c_str());
+	return;
+  }
+  if (std::regex_search(input, m, reg_write)){
+	std::printf("Write: %s\n", m.suffix().str().c_str());
+	std::string arg = m.suffix().str();
+	std::regex reg_rel_name("[_[:alpha:]][_\\w]*");
+	if (std::regex_search(arg, m, reg_rel_name)){
+	  std::string rel_name = m.str();
+	  //call write function
+	  return;
+	}
+	std::printf("Unable to process \"%s\" as the argument for write\n", input.c_str());
+	return;
+  }
+  if (std::regex_search(input, m, reg_exit)){
+	std::printf("Exit\n");
+	//call exit function
+	return;
+  }
+  if (std::regex_search(input, m, reg_show)){
+	std::printf("Show: %s\n", m.suffix().str().c_str());
+	std::string arg = m.suffix().str();
+	relation atomic = atomic_expr(arg, tables);
+	//call show function
+	return;
+  }
+  if (std::regex_search(input, m, reg_create)){
+	std::printf("Create: %s\n", m.suffix().str().c_str());
+	std::regex reg_rel_name("[_[:alpha:]][_\\w]*");
+	std::string arg = m.suffix().str();
+	if (std::regex_search(arg, m, reg_rel_name)){
+	  std::cout << m.str() << std::endl;
+	  std::string rel_name = m.str();
+	  arg = m.suffix().str();
+	  std::printf("Relation name: %s\n", rel_name.c_str());
+	  std::regex reg_key("\\s*PRIMARY KEY\\s*");
+	  if (std::regex_search(arg, m, reg_key)){
+		std::string attr_list = m.prefix().str();
+		std::string key_list = m.suffix().str();
+		std::printf("Attribute list: %s\nPrimary key: %s\n", attr_list.c_str(), key_list.c_str());
+		//call create function
+		return;
+	  }
+	}
+	std::printf("Unable to process \"%s\" as the argument for create\n", input.c_str());
+	return;
+  }
+  if (std::regex_search(input, m, reg_update)){
+	std::printf("Update: %s\n", m.suffix().str().c_str());
+	std::regex reg_rel_name("[_[:alpha:]][_\\w]*");
+	std::string arg = m.suffix().str();
+	if (std::regex_search(arg, m, reg_rel_name)){
+	  std::string rel_name = m.str();
+	  std::printf("Relation name: %s\n", rel_name.c_str());
+	  arg = m.suffix().str();
+	  std::regex reg_set("SET");
+	  if (std::regex_search(arg, m, reg_set)){
+		arg = m.suffix().str();
+		std::regex reg_attr("WHERE");
+		if (std::regex_search(arg, m, reg_attr)){
+		  std::string attr_list = m.prefix().str();
+		  std::string condition = m.suffix().str();
+		  std::printf("Attr: %s\nCondition: %s\n", attr_list.c_str(), condition.c_str());
+		  //call update function
+		  return;
+		}
+	  }
+	}
+	std::printf("Unable to process \"%s\" as the argument for update\n", input.c_str());
+	return;
+  }
+  if (std::regex_search(input, m, reg_insert)){
+	std::printf("Insert: %s\n", m.suffix().str().c_str());
+	std::regex reg_rel_name("[_[:alpha:]][_\\w]*");
+	std::string arg = m.suffix().str();
+	if (std::regex_search(arg, m, reg_rel_name)){
+	  std::string rel_name = m.str();
+	  arg = m.suffix().str();
+	  std::regex reg_expr("VALUES FROM RELATION");
+	  if (std::regex_search(arg, m, reg_expr)){
+		std::string expr_arg = m.suffix().str();
+		relation table = expr(expr_arg, tables);
+		std::printf("Relation name: %s\nExpr: %s\n", rel_name.c_str(), expr_arg.c_str());
+		//call insert function
+		return;
+	  }
+	  reg_expr = std::regex("VALUES FROM\\s*\\(");
+	  if (std::regex_search(arg, m, reg_expr)){
+		arg = m.suffix().str();
+		reg_expr = std::regex("\\)");
+		std::regex_search(arg, m, reg_expr);
+		arg = m.prefix().str();
+		std::vector<std::string> attr_list;
+		std::regex reg_lit("\\s*,\\s*");
+		while (std::regex_search(arg, m, reg_lit)){
+		  attr_list.push_back(m.prefix().str());
+		  arg = m.suffix().str();
+		}
+		attr_list.push_back(arg);
+		//call insert function
+		return;
+	  }
+	}
+	std::printf("Unable to process \"%s\" as the argument for delete\n", input.c_str());
+	return;
+  }
+  if (std::regex_search(input, m, reg_delete)){
+	std::printf("Delete: %s\n", m.suffix().str().c_str());
+	std::regex reg_rel_name("[_[:alpha:]][_\\w]*");
+	std::string arg = m.suffix().str();
+	if (std::regex_search(arg, m, reg_rel_name)){
+	  std::string rel_name = m.str();
+	  arg = m.suffix().str();
+	  std::regex reg_cond("WHERE\\s*");
+	  if (std::regex_search(arg, m, reg_cond)){
+		std::string condition = m.suffix().str();
+		std::printf("Relation name: %s\nCondition: %s\n", rel_name.c_str(), condition.c_str());
+		return;
+	  }
+	}
+	std::printf("Unable to process \"%s\" as the argument for delete\n", input.c_str());
+	return;
+  }
+}
+
 void grammar::open_cmd(std::string input, std::vector<relation>& tables){}
 void grammar::close_cmd(std::string input, std::vector<relation>& tables){}
 void grammar::write_cmd(std::string input, std::vector<relation>& tables){}
@@ -47,9 +204,9 @@ relation grammar::expr(std::string input, std::vector<relation>& tables){
   std::smatch m;
   if (std::regex_search(input, m, reg_select)){
 	std::printf("case: %s\n", "selection");
-	std::string select_arg = m.suffix().str();
+	std::string arg = m.suffix().str();
 	std::regex reg_cond("\\([\\s\\w&\\|!=<>\"]+\\)");
-	if (std::regex_search(select_arg, m, reg_cond)){
+	if (std::regex_search(arg, m, reg_cond)){
 	  std::string condition = m.str().substr(1, m.str().size() - 2);
 	  std::printf("condition: %s\natomic: %s\n", condition.c_str(), m.suffix().str().c_str());
 	  relation atomic = atomic_expr(m.suffix().str(), tables);
@@ -59,9 +216,9 @@ relation grammar::expr(std::string input, std::vector<relation>& tables){
   }
   if (std::regex_search(input, m, reg_projection)){
 	std::printf("case: %s\n", "projection");
-	std::string select_arg = m.suffix().str();
+	std::string arg = m.suffix().str();
 	std::regex reg_attr("\\(\\s*[_[:alpha:]][_\\w]*\\s*(,\\s*[_[:alpha:]][_\\w]*\\s*)*\\)");
-	if (std::regex_search(select_arg, m, reg_attr)){
+	if (std::regex_search(arg, m, reg_attr)){
 	  std::string attr_list = m.str().substr(1, m.str().size() - 2);
 	  std::printf("condition: %s\natomic: %s\n", attr_list.c_str(), m.suffix().str().c_str());
 	  relation atomic = atomic_expr(m.suffix().str(), tables);
@@ -71,9 +228,9 @@ relation grammar::expr(std::string input, std::vector<relation>& tables){
   }
   if (std::regex_search(input, m, reg_renaming)){
 	std::printf("case: %s\n", "renaming");
-	std::string select_arg = m.suffix().str();
+	std::string arg = m.suffix().str();
 	std::regex reg_attr("\\(\\s*[_[:alpha:]][_\\w]*\\s*(,\\s*[_[:alpha:]][_\\w]*\\s*)*\\)");
-	if (std::regex_search(select_arg, m, reg_attr)){
+	if (std::regex_search(arg, m, reg_attr)){
 	  std::string attr_list = m.str().substr(1, m.str().size() - 2);
 	  std::printf("condition: %s\natomic: %s\n", attr_list.c_str(), m.suffix().str().c_str());
 	  relation atomic = atomic_expr(m.suffix().str(), tables);

@@ -3,7 +3,7 @@
 
 int main(){
   std::vector<relation> table;
-  grammar::program("dogs <- select (kind == \"dog\" || age == \"5\") animals", table);
+  grammar::program("INSERT INTO animals VALUES FROM (\"Joe\", 4, 5) ", table);
   /*
   std::regex reg("([_[:alpha:]])([:alnum:]*).*");
   std::string test("a23jk43 efe / >");

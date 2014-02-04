@@ -6,17 +6,16 @@
 #include <array>
 #include <vector>
 
-/*
-array<attr, num_keys> k
-array<attr, num_attr> a
-map<k, t> t
-*/
 class relation{
+  typedef std::vector<attr*> key;
+  typedef std::vector<attr*> tuple;
+  typedef std::map<key, tuple> table;
   const int n_keys;
   const int n_attr;
   std::string table_name;
-  void* table;
-  std::vector<std::string> commands;
+  std::vector<std::string> header;
+  table t;
+  std::vector<std::string> commands; //might not need
 
 public:
   relation() : n_keys(0), n_attr(0), table_name(""){}
