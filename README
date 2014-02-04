@@ -1,52 +1,52 @@
 /*
-*	GIT Repository for CSCE 315 Project 1 - RDBMS
-*	"Futból Tracker"
+*    GIT Repository for CSCE 315 Project 1 - RDBMS
+*    "Futból Tracker"
 *
-*	Yash Chitneni
-*	John Goen
-*	Oliver Hatfield
-*	Tim Hopper
+*    Yash Chitneni
+*    John Goen
+*    Oliver Hatfield
+*    Tim Hopper
 *
-*	Copyright 2014
+*    Copyright 2014
 */
 
 Consists of three parts:
-	DBMS ENGINE
-	PARSER
-	DB APPLICATION ("Futbol Tracker")
-	
+    DBMS ENGINE
+    PARSER
+    DB APPLICATION ("Futbol Tracker")
+    
 Due dates:
-	2						Mon 2/10 11:50 pm
-		DBMS ENGINE
-	3						Mon 2/17 11:50 pm
-		ENGINE + PARSER
-	4						Mon 2/24 11:50 pm
-		DB APPLICATION
+    2                        Mon 2/10 11:50 pm
+        DBMS ENGINE
+    3                        Mon 2/17 11:50 pm
+        ENGINE + PARSER
+    4                        Mon 2/24 11:50 pm
+        DB APPLICATION
 
 Current responsibilities:
-	2
-		John		???
-		Oliver		???
-		Tim			???
-		Yash		???
-		
+    2
+        John        ???
+        Oliver      ???
+        Tim         ???
+        Yash        ???
+        
 Project notes:
-	2
-		Implement
-			CREATE TABLE (PRIMARY KEY)
-			DROP TABLE
-	
-			INSERT INTO 
-			UPDATE
-				DELETE FROM
+    2
+        Implement
+            CREATE TABLE (PRIMARY KEY)
+            DROP TABLE
+    
+            INSERT INTO 
+            UPDATE
+            DELETE FROM
 
-			SELECTION
-			PROJECTION
-			RENAMING
-			SET UNION
-			SET DIFFERENCE
-			CROSS PRODUCT
-			(NATURAL JOIN)
+            SELECTION
+            PROJECTION
+            RENAMING
+            SET UNION
+            SET DIFFERENCE
+            CROSS PRODUCT
+            (NATURAL JOIN)
 
-		No I/O, no parser. Everything through function calls.
-		
+        No I/O, no parser. Everything through function calls.
+        
