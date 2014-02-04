@@ -24,19 +24,22 @@ public:
   ~relation();
   void set_name(std::string name);
   std::string get_name() const;
+  /*
+	Will also need get and set functions to access individual rows
+  */
   //create_table(); constructor
   //drop_table(); destructor
   bool insert_into(std::vector<std::string> literals);
-  bool insert_into(relation table);
+  bool insert_into(relation other_table);
   bool update(std::vector<std::string> attr_list, std::vector<std::string> conjunctions);
   bool delete_from(std::vector<std::string> conjunctions);
   relation selection(std::vector<std::string> conjunctions);
   relation projection(std::vector<std::string> attr_list);
   relation renaming(std::vector<std::string> attr_list);
-  relation set_union(relation table);
-  relation set_difference(relation table);
-  relation cross_product(relation table);
-  relation natural_join(relation table);
+  relation set_union(relation other_table);
+  relation set_difference(relation other_table);
+  relation cross_product(relation other_table);
+  relation natural_join(relation other_table);
 };
 
 #endif
