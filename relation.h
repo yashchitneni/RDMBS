@@ -5,6 +5,7 @@
 #include <map>
 #include <array>
 #include <vector>
+#include <regex>
 
 class relation{
   typedef std::vector<attr*> tuple;
@@ -15,13 +16,14 @@ class relation{
   std::vector<std::string> header;
   table t;
   std::vector<std::string> commands; //might not need
-  static bool meets_condition(std::string condition, std::pair<tuple, tuple> row);
+  bool meets_condition(std::string condition, std::pair<tuple, tuple> row);
+  int header_pos(std::string name);
 
 
 public:
   relation() : n_keys(0), n_attr(0), table_name(""){}
-  relation(int num_keys, int num_attr, std::string name);
-  ~relation();
+  relation(int num_keys, int num_attr, std::string name, std::vector<std::string> attr_header);
+  //~relation();
   void set_name(std::string name);
   std::string get_name() const;
   /*

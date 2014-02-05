@@ -205,10 +205,10 @@ relation grammar::expr(std::string input, std::vector<relation>& tables){
   if (std::regex_search(input, m, reg_select)){
 	std::printf("case: %s\n", "selection");
 	std::string arg = m.suffix().str();
-	std::regex reg_cond("\\([\\s\\w&\\|!=<>\"]+\\)");
+	std::regex reg_cond("(?:\\(\\s*)([\\s\\w&\\|!=<>\"]+\\))");
 	if (std::regex_search(arg, m, reg_cond)){
-	  std::string condition = m.str().substr(1, m.str().size() - 2);
-	  std::printf("condition: %s\natomic: %s\n", condition.c_str(), m.suffix().str().c_str());
+	  std::string condition = m[1].str().substr(0, m[1].str().size() - 1);
+	  std::printf("condition: :%s\natomic: %s\n", condition.c_str(), m.suffix().str().c_str());
 	  relation atomic = atomic_expr(m.suffix().str(), tables);
 	  return selection(condition, atomic);
 	}
