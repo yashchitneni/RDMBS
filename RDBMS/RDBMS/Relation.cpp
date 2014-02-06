@@ -8,7 +8,6 @@ Relation::Relation(
 	n_keys = key_header.size();
 	n_attr = attr_header.size() - n_keys;
 	table_name = name;
-
 }
 
 void Relation::set_name(std::string name){

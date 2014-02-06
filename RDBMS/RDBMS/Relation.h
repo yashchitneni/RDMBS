@@ -28,7 +28,7 @@ public:
 	strings of attr_header are of the form "attr_name TYPE" where TYPE can be INTEGER or VARCHAR(int)
 	*/
 	Relation(std::string name, std::vector<std::string> key_header, std::vector<std::string> attr_header);
-	//~relation();
+	//~Relation();
 	void set_name(std::string name); //sets the name of the table
 	std::string get_name() const;	//returns the name of the table
 	void save(); //checks if there exists a .db file and writes all the commands to ceate the table to the file

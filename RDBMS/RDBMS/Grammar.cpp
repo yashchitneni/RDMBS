@@ -241,8 +241,9 @@ void Grammar::show_cmd(Relation table){
 void Grammar::create_cmd(std::string table_name, std::string keys, std::string attrs, std::vector<Relation>& tables){
 	std::vector<std::string> key_list = split_attr(keys);;
 	std::vector<std::string> attr_list = split_attr(attrs);
-	Relation new_relation(table_name, key_list, attr_list);
+	Relation new_relation(table_name, key_list, attr_list); //should probably instead call Database's create_table function (1) (John)
 	tables.push_back(new_relation);
+	//(1) database.create_table(table_name, key_list, attr_list);
 }
 
 void Grammar::update_cmd(std::string table_name, std::string attrs, std::string conditions, std::vector<Relation>& tables){

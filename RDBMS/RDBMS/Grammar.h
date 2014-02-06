@@ -1,3 +1,12 @@
+/*
+	It seems that all of your functions here access the tables in the database directly.
+	Although this makes sense when we need the parser to do its job of reading inputs,
+	The deliverable for Monday night says to not include the parser, so we should probably
+	do the actual table manipulation through Database functions instead of accessing the DB's
+	tables directly as you do here. Am I making sense? Sorry if I'm not.
+	(John)
+*/
+
 #ifndef _GRAMMAR
 #define _GRAMMAR
 

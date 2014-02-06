@@ -11,7 +11,7 @@ public:
 
 	void create_table(
 		std::string table_name,
-		std::vector<Attribute*> keys,
+		std::vector<std::string> key_header,
 		std::vector<std::string> attr_header);
 
 	void drop_table(std::string table_name);
