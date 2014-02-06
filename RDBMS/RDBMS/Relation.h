@@ -16,11 +16,12 @@ class Relation{
 	std::vector<std::string> header;
 	table t;
 	std::vector<std::string> commands; //might not need
-	bool meets_condition(std::string condition, std::pair<tuple, tuple> row);
+	
 	int header_pos(std::string name);
 
 
 public:
+	bool meets_condition(std::string condition, std::pair<tuple, tuple> row);
 	Relation() : n_keys(0), n_attr(0), table_name(""){}
 	/*
 	constructor takes in a table name and two vector<strings>

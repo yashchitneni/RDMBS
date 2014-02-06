@@ -16,14 +16,14 @@ std::string relation::get_name() const{
 }
 
 bool relation::meets_condition(std::string condition, std::pair<tuple, tuple> row){
-  std::regex reg_all("\\s*(==|!=|<=|>=|<|>)\\s*");
+	std::regex reg_all("([\\w_\"]+)(?:\\s*)(==|!=|<=|>=|<|>)(?:\\s*)([\\w_\"]+)");
   std::smatch m;
   if (std::regex_search(condition, m, reg_all)){
 	attr* op1;
 	attr* op2;
-	std::string operation = m.str();
-	std::string operand1 = m.prefix().str();
-	std::string operand2 = m.suffix().str();
+	std::string operation = m[2].str();
+	std::string operand1 = m[1].str();
+	std::string operand2 = m[3].str();
 	std::printf("Operand: %s\nOperand: %s\n", operand1.c_str(), operand2.c_str());
 	std::regex reg_var_char("\\\".*\\\"");
 	if (std::regex_search(operand1, m, reg_var_char)){

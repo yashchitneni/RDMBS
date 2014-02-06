@@ -66,6 +66,7 @@
   <ItemGroup>
     <ClCompile Include="Database.cpp" />
     <ClCompile Include="Grammar.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="Relation.cpp" />
   </ItemGroup>
   <ItemGroup>

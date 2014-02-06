@@ -1,10 +1,6 @@
 #include "Relation.h"
 
-Relation::Relation(
-	std::string name,
-	std::vector<std::string> key_header,
-	std::vector<std::string> attr_header){
-
+Relation::Relation(std::string name, std::vector<std::string> key_header,	std::vector<std::string> attr_header){
 	n_keys = key_header.size();
 	n_attr = attr_header.size() - n_keys;
 	table_name = name;
@@ -19,15 +15,15 @@ std::string Relation::get_name() const{
 }
 
 bool Relation::meets_condition(std::string condition, std::pair<tuple, tuple> row){
-	std::regex reg_all("\\s*(==|!=|<=|>=|<|>)\\s*");
+	std::regex reg_all("([\\w_\"]+)(?:\\s*)(==|!=|<=|>=|<|>)(?:\\s*)([\\w_\"]+)");
 	std::smatch m;
 	if (std::regex_search(condition, m, reg_all)){
 		Attribute* op1;
 		Attribute* op2;
-		std::string operation = m.str();
-		std::string operand1 = m.prefix().str();
-		std::string operand2 = m.suffix().str();
-		std::printf("Operand: %s\nOperand: %s\n", operand1.c_str(), operand2.c_str());
+		std::string operation = m[2].str();
+		std::string operand1 = m[1].str();
+		std::string operand2 = m[3].str();
+		std::printf("Operation: %s\nOperand: %s\nOperand: %s\n", operation.c_str(), operand1.c_str(), operand2.c_str());
 		std::regex reg_var_char("\\\".*\\\"");
 		if (std::regex_search(operand1, m, reg_var_char)){
 			std::printf("Operand1 is a var_char\n");
