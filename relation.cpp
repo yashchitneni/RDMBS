@@ -1,5 +1,12 @@
 #include "relation.h"
 
+relation::relation(std::string name, std::vector<std::string> key_header, std::vector<std::string> attr_header){
+  n_keys = key_header.size();
+  n_attr = attr_header.size() - n_keys;
+  table_name = name;
+
+}
+
 void relation::set_name(std::string name){
   table_name = name;
 }
@@ -52,7 +59,7 @@ bool relation::meets_condition(std::string condition, std::pair<tuple, tuple> ro
 	  }
 	}
 	if (op1->get_class() != op2->get_class()){
-	  std::printf("Cant compare objects\n");
+	  std::printf("Cant compare: objects are not the same type\n");
 	  return false;
 	}
 	std::regex reg_equal("\\s*==\\s*");
@@ -100,4 +107,12 @@ int relation::header_pos(std::string name){
 	  return k;
   }
   return -1;
+}
+
+void relation::save(){
+  //add function to save the table
+}
+
+void relation::show(){
+  //add function to show table
 }
