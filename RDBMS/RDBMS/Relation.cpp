@@ -1,14 +1,15 @@
 #include "Relation.h"
 
 Relation::Relation(
-	int num_keys,
-	int num_attr,
 	std::string name,
-	std::vector<std::string> attr_header)
-		:n_keys(num_keys),
-		n_attr(num_attr),
-		table_name(name),
-		header(attr_header){}
+	std::vector<std::string> key_header,
+	std::vector<std::string> attr_header){
+
+	n_keys = key_header.size();
+	n_attr = attr_header.size() - n_keys;
+	table_name = name;
+
+}
 
 void Relation::set_name(std::string name){
 	table_name = name;
@@ -18,30 +19,23 @@ std::string Relation::get_name() const{
 	return table_name;
 }
 
-bool Relation::meets_condition(
-	std::string condition,
-	std::pair<tuple, tuple> row){
-
+bool Relation::meets_condition(std::string condition, std::pair<tuple, tuple> row){
 	std::regex reg_all("\\s*(==|!=|<=|>=|<|>)\\s*");
 	std::smatch m;
-
 	if (std::regex_search(condition, m, reg_all)){
 		Attribute* op1;
 		Attribute* op2;
 		std::string operation = m.str();
 		std::string operand1 = m.prefix().str();
 		std::string operand2 = m.suffix().str();
-
 		std::printf("Operand: %s\nOperand: %s\n", operand1.c_str(), operand2.c_str());
 		std::regex reg_var_char("\\\".*\\\"");
-
 		if (std::regex_search(operand1, m, reg_var_char)){
 			std::printf("Operand1 is a var_char\n");
 			op1 = new Var_Char(m.str().substr(0, m.str().size() - 2));
 		}
 		else{
 			int pos = header_pos(operand1);
-
 			if (pos != -1){
 				std::printf("Operand1 is a attr header\n");
 				if (pos < n_keys) op1 = row.first[pos];
@@ -69,10 +63,9 @@ bool Relation::meets_condition(
 			}
 		}
 		if (op1->get_class() != op2->get_class()){
-			std::printf("Cant compare objects\n");
+			std::printf("Cant compare: objects are not the same type\n");
 			return false;
 		}
-
 		std::regex reg_equal("\\s*==\\s*");
 		std::regex reg_not_equal("\\s*!=\\s*");
 		std::regex reg_less("\\s*<\\s*");
@@ -80,7 +73,6 @@ bool Relation::meets_condition(
 		std::regex reg_less_equal("\\s*<=\\s*");
 		std::regex reg_greater_equal("\\s*>=\\s*");
 		bool out;
-
 		if (std::regex_search(condition, m, reg_equal)){
 			std::printf("Operation: Equal\n");
 			out = (*op1 == *op2);
@@ -105,7 +97,6 @@ bool Relation::meets_condition(
 			std::printf("Operation: Greater Than Equal\n");
 			out = (*op2 < *op1);
 		}
-
 		std::printf("\n\n");
 		delete op1;
 		delete op2;
@@ -116,10 +107,16 @@ bool Relation::meets_condition(
 
 int Relation::header_pos(std::string name){
 	for (int k = 0; k < header.size(); k++){
-		if (header[k] == name) {
+		if (header[k] == name)
 			return k;
-		}
 	}
-
 	return -1;
+}
+
+void Relation::save(){
+	//add function to save the table
+}
+
+void Relation::show(){
+	//add function to show table
 }
