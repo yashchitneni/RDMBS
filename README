@@ -53,3 +53,5 @@ Project notes:
 
         No I/O, no parser. Everything through function calls.
         
+NOTE:
+    Do not use the source code files in the "root" folder; use the capitalized source code files in /RDMBS/RDBMS/RDBMS.
