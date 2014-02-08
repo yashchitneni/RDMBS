@@ -15,6 +15,7 @@ public:
   virtual int get_class() const = 0;
   virtual bool operator<(const attr& rhs) const= 0;
   virtual bool operator==(const attr& rhs) const = 0;
+	virtual bool operator!=(const attr& rhs) const = 0;
 };
 
 class integer : public attr{
@@ -22,6 +23,9 @@ class integer : public attr{
 public:
   integer() : value(0){ ; }
   integer(int v) : value(v){};
+	integer(const integer& other){
+		value = atoi(other.get_value().c_str());
+	}
   void set_value(std::string v){ value = atoi(v.c_str()); }
   std::string get_value() const { return std::to_string(value); }
   int get_class() const { return INTEGER; }
@@ -35,6 +39,9 @@ public:
 	if (other == NULL) return 0;
 	return value == atoi(other->get_value().c_str());
   }
+	bool operator!=(const attr& rhs) const {
+		return !(*this == rhs);
+	}
 };
 
 class var_char : public attr{
@@ -42,6 +49,9 @@ class var_char : public attr{
 public:
   var_char() : value(""){}
   var_char(std::string v) :value(v){}
+	var_char(const var_char& other){
+		value = other.get_value();
+	}
   void set_value(std::string v){ value = v;  }
   std::string get_value() const { return value; }
   int get_class() const { return VAR_CHAR; }
@@ -55,6 +65,9 @@ public:
 	if (other == NULL) return 0;
 	return value == other->get_value();
   }
+	bool operator!=(const attr& rhs) const {
+		return !(*this == rhs);
+	}
 };
 
 #endif
