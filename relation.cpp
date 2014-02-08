@@ -59,8 +59,10 @@ bool relation::meets_condition(std::string condition, std::pair<tuple, tuple> ro
 	  int pos = header_pos(operand1);
 	  if (pos != -1){
 		std::printf("Operand1 is a attr header\n");
-		if (pos < n_keys) op1 = row.first[pos];
-		else op1 = row.second[pos - n_keys];
+		//if (pos < n_keys) op1 = row.first[pos];
+		//else op1 = row.second[pos];
+		op1 = row.second[pos];
+		printf("%d\n", op1->get_class());
 	  }
 	  else{
 		std::printf("Operand1 is an int\n");
@@ -144,7 +146,7 @@ bool relation::is_key(int pos){
 bool relation::key_exists(tuple key){
 	for (auto x : t){
 		for (int k = 0; k < key.size(); k++){
-			if (!(*(x.first[k]) == *(key[k]))) //no != operatior, so had to improvise
+			if (*(x.first[k]) != *(key[k]))
 				break;
 			if (k == key.size() - 1)
 				return true;
@@ -232,7 +234,7 @@ bool relation::insert_into(relation other_table){
 
 bool relation::update(std::vector<std::string> attr_list, std::vector<std::string> conjunctions){
 	std::vector<std::string> comparisons;
-	std::regex reg_amp("([\\w_\"\\s*(==|!=|<=|>=|<|>)]+)(?:\\s*&&\\s*)([\\w_\"\\s*(==|!=|<=|>=|<|>)]+)");
+	std::regex reg_amp("([\\w_\"\\s*(==|!=|<=|>=|<|>)]+)(?:\\s*&&\\s*)*([\\w_\"\\s*(==|!=|<=|>=|<|>)]+)*");
 	std::smatch amp_match;
 
 	//Split conjunctions into individual comparisons
@@ -252,7 +254,7 @@ bool relation::update(std::vector<std::string> attr_list, std::vector<std::strin
 
 		for (auto comp_iter = comparisons.begin(); comp_iter != comparisons.end(); ++comp_iter){
 
-			if (this->meets_condition(*comp_iter, *row_iter)){ //this may fail if trailing spaces are a problem for meets_condition
+			if (this->meets_condition(*comp_iter, *row_iter)){ //breaking on a condition.
 				std::vector<std::pair<std::string, attr*>> changes;
 				std::regex reg_equal("([\\w_\"]+)(?:\\s*=\\s*)([\\w_\"]+)");
 				std::smatch equ_match;
@@ -280,9 +282,6 @@ bool relation::update(std::vector<std::string> attr_list, std::vector<std::strin
 					*row_iter->second[this->header_pos(attr_name)] = *change_iter->second; //may cause error when changes goes out of scope?
 				}
 			}
-			else{
-				return false;
-			}
 		}
 	}
 	return true;
@@ -302,8 +301,8 @@ relation relation::projection(std::vector<std::string> attr_list){
 			projection_header.push_back(header[position]);
 		}
 		else {
-			std::printf("%s does not match!", *attr_iter);
-			//FIXME fail gracefully somehow
+			std::printf("%s does not match an attribute in %s! Cannot project!", *attr_iter, this->get_name());
+			return relation(); //only way I could see to exit gracefully
 		}
 	}
 
@@ -333,8 +332,24 @@ relation relation::projection(std::vector<std::string> attr_list){
 }
 
 relation relation::set_union(relation other_table){
+	relation new_relation;
+
+	//Check for union compatibility
+
+	//Compare each row of relation 1 with each row of relation 2, inserting all distinct rows and only 1 of matching rows.
+
 	return relation(); //placeholder
 }
 relation relation::set_difference(relation other_table){
+	relation new_relation;
+
+	//Check for union compatibility
+
+	//Compare each row of relation 1 with each row of relation 2, inserting all distinct rows and only 1 of matching rows.
+
 	return relation(); //placeholder
+}
+
+relation relation::natural_join(relation other_table){
+	return relation();
 }

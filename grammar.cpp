@@ -244,7 +244,9 @@ void grammar::update_cmd(std::string table_name, std::string attrs, std::string 
   relation* table = &tables[pos];
   std::vector<std::string> attr_list = split_attr(attrs);
   std::vector<std::string> conjunctions = split_condition(conditions);
-  //table->update(attr_list, conjunctions);
+  if (table->update(attr_list, conjunctions) == false){
+	  std::printf("Table not updated!\n");
+  }
 }
 
 void grammar::insert_cmd(relation& table, relation other_table){
