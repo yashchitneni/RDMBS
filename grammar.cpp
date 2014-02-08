@@ -403,29 +403,34 @@ relation& grammar::projection(std::string attr_list, relation& table){
 }
 
 relation& grammar::renaming(std::string attr_list, relation& table){
-  std::vector<std::string> attr_names = split_attr(attr_list);
-  //add function for a table to rename the columns
-  return relation();
+	std::vector<std::string> attr_names = split_attr(attr_list);
+	//add function for a table to rename the columns
+	relation temp;
+	return temp;
 }
 
 relation& grammar::table_union(relation& table1, relation& table2){
-  //add function for a table to do a union
-  return relation();
+	//add function for a table to do a union
+	relation temp;
+	return temp;
 }
 
 relation& grammar::difference(relation& table1, relation& table2){
   //add function for a table to do a difference
-  return relation();
+	relation temp;
+	return temp;
 }
 
 relation& grammar::product(relation& table1, relation& table2){
   //add function for a table to do a product
-  return relation();
+	relation temp;
+	return temp;
 }
 
 relation& grammar::natural_join(relation& table1, relation& table2){
   //add function for a table to do a natural_join
-  return relation();
+	relation temp;
+	return temp;
 }
 
 std::vector<std::string> grammar::split_attr(std::string attr_list){

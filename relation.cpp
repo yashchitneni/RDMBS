@@ -1,8 +1,8 @@
 #include "relation.h"
 
 relation::relation(std::string name, std::vector<std::string> key_header, std::vector<std::string> attr_header){
-  n_keys = key_header.size();
-  n_attr = attr_header.size();
+  n_keys = (int)key_header.size();
+  n_attr = (int)attr_header.size();
   table_name = name;
 	std::regex reg_header("([_[:alpha:]][_\\w]*)(?:\\s*(INTEGER|VARCHAR))");
 	std::smatch m;
@@ -302,7 +302,7 @@ relation relation::projection(std::vector<std::string> attr_list){
 			projection_header.push_back(header[position]);
 		}
 		else {
-			std::printf("%s does not match!", *attr_iter);
+			std::printf("%s does not match!", (*attr_iter).c_str());	//OH: my IDE recommended putting in c_str(). ok?
 			//FIXME fail gracefully somehow
 		}
 	}
@@ -353,7 +353,15 @@ relation relation::renaming(std::vector<std::string> attr_list) {
 	//INCOMPLETE!!! waiting on finished constructor.
 	//also, would this code work?
 	
-	relation temp(this->get_name(), /*get_key_header*/, attr_list);
+	std::vector<std::string> new_keys;
+	for(std::vector<std::string>::iterator it = header.begin(); it != header.end(); ++it) {
+		if((*it).substr(0,1) == "%") {
+			std::string temp =(*it).substr(1,(*it).length());
+			new_keys.push_back(temp);
+		}
+	}
+	
+	relation temp(this->get_name(), new_keys, attr_list);
 	temp.insert_into(*this);	//place all tuples from this relation into temp relation
 	
 	return temp;

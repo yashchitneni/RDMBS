@@ -13,7 +13,7 @@ class relation{
   int n_keys;
   int n_attr;
   std::string table_name;
-  std::vector<std::string> header;
+  std::vector<std::string> header;	//keys are represented by adding "%" to the front of the attr title
   table t;
   std::vector<std::string> commands; //might not need
   bool meets_condition(std::string condition, std::pair<tuple, tuple> row);
@@ -45,7 +45,7 @@ public:
   //create_table(); constructor
   //drop_table(); destructor
   bool insert_into(std::vector<std::string> literals);	//
-  bool insert_into(relation other_table);	//
+  bool insert_into(relation other_table);	//OH: does this insert ALL the tuples from other_table into "this" table?
   bool update(std::vector<std::string> attr_list, std::vector<std::string> conjunctions);
   bool delete_from(std::vector<std::string> conjunctions);	//
   relation selection(std::vector<std::string> conjunctions);
