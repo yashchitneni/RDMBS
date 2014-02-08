@@ -369,9 +369,64 @@ relation relation::renaming(std::vector<std::string> attr_list) {
 
 //handled by Oliver Hatfield
 relation relation::cross_product(relation other_table) {
-	relation temp;
+/*
+	std::vector<std::string> new_keys;
+	for(std::vector<std::string>::iterator it = header.begin(); it != header.end(); ++it) {
+		if((*it).substr(0,1) == "%") {
+			std::string temp =(*it).substr(1,(*it).length());
+			new_keys.push_back(temp);
+		}
+	}
+*/
+	
+	//HOW DEFINE KEYS??? :/ i guess just use keys from the calling table, and push back the other parts into its values.
+	
+	std::vector<std::string> new_header;
+	for(std::vector<std::string>::iterator it1 = header.begin(); it1 != header.end(); ++it1) {
+		new_header.push_back(*it1);
+	}
+	for(std::vector<std::string>::iterator it2 = other_table.get_header().begin(); it2 != other_table.get_header().end(); ++it2) {
+		if((*it2).substr(0,1) == "%") {
+			std::string temp =(*it2).substr(1,(*it2).length());	//remove keys from table 2 headers
+			new_header.push_back(temp);
+		}
+		else {
+			new_header.push_back(*it2);
+		}
+	}
+	
+	std::vector<std::string> empty_keys;	//this shouldn't be a problem...?
+	relation temp("Cross product", empty_keys, new_header);
 	
 	
+	std::map<tuple, tuple> new_values;
+	std::map<tuple,tuple>::iterator map_traverse = t.begin();
+	while(map_traverse != t.end()) {
+		std::map<tuple,tuple>::iterator other_trav = other_table.get_table().begin();
+		while(other_trav != other_table.get_table().end()) {
+			tuple temp;
+			
+			for(tuple::iterator t_iter = map_traverse->second.begin(); t_iter != map_traverse->second.end(); ++t_iter) {
+				temp.push_back(*t_iter);
+			}
+			for(tuple::iterator t_iter = other_trav->first.begin(); t_iter != other_trav->first.end(); ++t_iter) {	//how do i fix this problem?
+				temp.push_back(*t_iter);
+			}
+			for(tuple::iterator t_iter = other_trav->second.begin(); t_iter != other_trav->second.end(); ++t_iter) {
+				temp.push_back(*t_iter);
+			}
+			
+			
+			new_values.insert(map_traverse->first, temp);
+			++other_trav;	//and apparently these iterators don't work.
+		}
+		
+		
+		++map_traverse;	//and apparently these iterators don't work.
+	}
+	
+	
+	temp.t = new_values;	//will this work? copy constructor?
 	
 	/*
 	 how do i dig out the individual tuples from other_table? i need to be able to work with those...
