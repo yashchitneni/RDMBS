@@ -232,31 +232,56 @@ bool relation::insert_into(relation other_table){
 
 bool relation::update(std::vector<std::string> attr_list, std::vector<std::string> conjunctions){
 	std::vector<std::string> comparisons;
-	std::string delimiter = "&&";
+	std::regex reg_amp("([\\w_\"\\s*(==|!=|<=|>=|<|>)]+)(?:\\s*&&\\s*)([\\w_\"\\s*(==|!=|<=|>=|<|>)]+)");
+	std::smatch amp_match;
 
 	//Split conjunctions into individual comparisons
 	for (auto conj_iter = conjunctions.begin(); conj_iter != conjunctions.end(); ++conj_iter){
-		std::string conjunction = *conj_iter;
-
-		while (conjunction.find(delimiter) != std::string::npos){
-			comparisons.push_back(conjunction.substr(0, conjunction.find(delimiter)));
-			conjunction.erase(0, conjunction.find(delimiter) + delimiter.length());
+		if (std::regex_search(*conj_iter, amp_match, reg_amp)) {
+			for (auto match_iter = amp_match.begin(); match_iter != amp_match.end(); ++match_iter){
+				comparisons.push_back(*match_iter);
+			}
+		}
+		else{
+			return false;
 		}
 	}
 
-	//Check which rows satisfy the condition of the comparisons
+	//Check which rows satisfy the condition of the comparisons, then modify said rows according to attr_list
 	for (auto row_iter = t.begin(); row_iter != t.end(); ++row_iter){
 
 		for (auto comp_iter = comparisons.begin(); comp_iter != comparisons.end(); ++comp_iter){
 
-			if (this->meets_condition(*comp_iter, *row_iter)){
-				//TODO take attribute list and split attributes on "==". Make a vector of pairs of strings and attributes. (regex)
+			if (this->meets_condition(*comp_iter, *row_iter)){ //this may fail if trailing spaces are a problem for meets_condition
 				std::vector<std::pair<std::string, attr*>> changes;
+				std::regex reg_equal("([\\w_\"]+)(?:\\s*=\\s*)([\\w_\"]+)");
+				std::smatch equ_match;
+
+				for (auto attr_iter = attr_list.begin(); attr_iter != attr_list.end(); ++attr_iter){
+
+					if (std::regex_search(*attr_iter, equ_match, reg_equal)){
+						std::string attr_name = amp_match[1].str();
+						std::string attr_string = amp_match[2].str();
+						attr* attribute;
+
+						if (isalpha(attr_string[0])){
+							attribute = new var_char(attr_string);
+						}
+						else {
+							attribute = new integer(atoi(attr_string.c_str()));
+						}
+
+						changes.push_back(std::make_pair(std::string(attr_name), attribute));
+					}
+				}
 
 				for (auto change_iter = changes.begin(); change_iter != changes.end(); ++change_iter){
 					std::string& attr_name = change_iter->first;
 					*row_iter->second[this->header_pos(attr_name)] = *change_iter->second; //may cause error when changes goes out of scope?
 				}
+			}
+			else{
+				return false;
 			}
 		}
 	}
@@ -278,19 +303,38 @@ relation relation::projection(std::vector<std::string> attr_list){
 		}
 		else {
 			std::printf("%s does not match!", *attr_iter);
-			//fail gracefully somehow
+			//FIXME fail gracefully somehow
 		}
 	}
 
 	projection.set_header(projection_header);
 
+	//For each projected column, push the attribute at that position from original row to the new row, then add the row to the new relation's table
 	for (auto table_iter = t.begin(); table_iter != t.end(); ++table_iter){
 		relation::tuple projection_row;
+		relation::tuple keys;
+		
+		for (auto attrib_iter = attrib_positions.begin(); attrib_iter != attrib_positions.end(); ++attrib_iter){
 
-		for (auto x = attrib_positions.begin(); x != attrib_positions.end(); ++x){
-			projection_row.push_back(table_iter->second[*x]);
+			if (this->is_key(*attrib_iter)) {
+				keys.push_back(table_iter->second[*attrib_iter]);
+			}
+
+			projection_row.push_back(table_iter->second[*attrib_iter]);
 		}
-		//projection.get_table()[keys] = projection_row;
+
+		if (keys.size() == 0){
+			keys.push_back(projection_row[0]);
+		}
+
+		projection.get_table()[keys] = projection_row;
 	}
 	return projection;
+}
+
+relation relation::set_union(relation other_table){
+	return relation(); //placeholder
+}
+relation relation::set_difference(relation other_table){
+	return relation(); //placeholder
 }
