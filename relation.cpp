@@ -136,7 +136,7 @@ bool relation::is_header(int pos){
 bool relation::key_exists(tuple key){
 	for (auto x : t){
 		for (int k = 0; k < key.size(); k++){
-			if (*(x.first[k]) != *(key[k]))
+			if ((*(x.first[k])) != (*(key[k])))
 				break;
 			if (k == key.size() - 1)
 				return true;
@@ -220,4 +220,44 @@ bool relation::insert_into(relation other_table){
 		}
 	}
 	return true;
+}
+
+//handled by Oliver Hatfield
+relation relation::renaming(std::vector<std::string> attr_list) {
+	/*
+	 i'd like to have some way to know where these new titles go.
+	 pass a vector of indices (ints) along with attr_list?
+	 do i just assume that it passes a new name for EVERY attr_name??
+	 
+	 need to create NEW relation, based on what is called here.
+	 */
+	
+	
+	//INCOMPLETE!!! waiting on finished constructor.
+	//also, would this code work?
+	
+	relation temp(this->get_name(), /*get_key_header*/, attr_list);
+	temp.insert_into(*this);	//place all tuples from this relation into temp relation
+	
+	return temp;
+}
+
+//handled by Oliver Hatfield
+relation relation::cross_product(relation other_table) {
+	relation temp;
+	
+	/*
+	 how do i dig out the individual tuples from other_table? i need to be able to work with those...
+	 i need map access.
+	 
+	 concatenate the two headers, making the new relation doubly-wide
+	 
+	 
+	 
+	 */
+	
+	//INCOMPLETE
+	//NEED map accessor for other_table.
+	
+	return temp;
 }
