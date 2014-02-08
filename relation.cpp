@@ -24,8 +24,16 @@ void relation::set_name(std::string name){
   table_name = name;
 }
 
+void relation::set_header(std::vector<std::string> attr_header){
+	header = attr_header;
+}
+
 std::string relation::get_name() const{
   return table_name;
+}
+
+std::vector<std::string> relation::get_header() const{
+	return header;
 }
 
 relation::table relation::get_table(){
@@ -126,7 +134,7 @@ int relation::header_pos(std::string name){
   return -1;
 }
 
-bool relation::is_header(int pos){
+bool relation::is_key(int pos){
 	if (header[pos][0] == '%'){
 		return true;
 	}
@@ -136,7 +144,7 @@ bool relation::is_header(int pos){
 bool relation::key_exists(tuple key){
 	for (auto x : t){
 		for (int k = 0; k < key.size(); k++){
-			if (*(x.first[k]) != *(key[k]))
+			if (!(*(x.first[k]) == *(key[k]))) //no != operatior, so had to improvise
 				break;
 			if (k == key.size() - 1)
 				return true;
@@ -185,7 +193,7 @@ bool relation::insert_into(std::vector<std::string> literals){
 		attrs.push_back(new_attr);
 	}
 	for (int k = 0; k < header.size(); k++){
-		if (is_header(k))
+		if (is_key(k))
 			keys.push_back(attrs[k]);
 	}
 	if (!key_exists(keys)){
@@ -214,10 +222,75 @@ bool relation::insert_into(relation other_table){
 				new_row.push_back(new_attr);
 			}
 			for (int k = 0; k < new_row.size(); k++){
-				if (is_header(k))
+				if (is_key(k))
 					new_keys.push_back(new_row[k]);
 			}
 		}
 	}
 	return true;
+}
+
+bool relation::update(std::vector<std::string> attr_list, std::vector<std::string> conjunctions){
+	std::vector<std::string> comparisons;
+	std::string delimiter = "&&";
+
+	//Split conjunctions into individual comparisons
+	for (auto conj_iter = conjunctions.begin(); conj_iter != conjunctions.end(); ++conj_iter){
+		std::string conjunction = *conj_iter;
+
+		while (conjunction.find(delimiter) != std::string::npos){
+			comparisons.push_back(conjunction.substr(0, conjunction.find(delimiter)));
+			conjunction.erase(0, conjunction.find(delimiter) + delimiter.length());
+		}
+	}
+
+	//Check which rows satisfy the condition of the comparisons
+	for (auto row_iter = t.begin(); row_iter != t.end(); ++row_iter){
+
+		for (auto comp_iter = comparisons.begin(); comp_iter != comparisons.end(); ++comp_iter){
+
+			if (this->meets_condition(*comp_iter, *row_iter)){
+				//TODO take attribute list and split attributes on "==". Make a vector of pairs of strings and attributes. (regex)
+				std::vector<std::pair<std::string, attr*>> changes;
+
+				for (auto change_iter = changes.begin(); change_iter != changes.end(); ++change_iter){
+					std::string& attr_name = change_iter->first;
+					*row_iter->second[this->header_pos(attr_name)] = *change_iter->second; //may cause error when changes goes out of scope?
+				}
+			}
+		}
+	}
+	return true;
+}
+
+relation relation::projection(std::vector<std::string> attr_list){
+	std::vector<int> attrib_positions;
+	std::vector<std::string> projection_header;
+	relation projection;
+
+	//Finds column positions (placed into attrib_positions) to access when projecting the relation
+	for (auto attr_iter = attr_list.begin(); attr_iter != attr_list.end(); ++attr_iter){
+		int position = this->header_pos(*attr_iter);
+
+		if (position != -1) {
+			attrib_positions.push_back(position);
+			projection_header.push_back(header[position]);
+		}
+		else {
+			std::printf("%s does not match!", *attr_iter);
+			//fail gracefully somehow
+		}
+	}
+
+	projection.set_header(projection_header);
+
+	for (auto table_iter = t.begin(); table_iter != t.end(); ++table_iter){
+		relation::tuple projection_row;
+
+		for (auto x = attrib_positions.begin(); x != attrib_positions.end(); ++x){
+			projection_row.push_back(table_iter->second[*x]);
+		}
+		//projection.get_table()[keys] = projection_row;
+	}
+	return projection;
 }

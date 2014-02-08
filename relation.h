@@ -18,7 +18,7 @@ class relation{
   std::vector<std::string> commands; //might not need
   bool meets_condition(std::string condition, std::pair<tuple, tuple> row);
   int header_pos(std::string name);
-	bool is_header(int pos);
+	bool is_key(int pos); //is_key seemed more appropriate
 	bool key_exists(tuple key);
 
 
@@ -32,7 +32,9 @@ public:
   relation(std::string name, std::vector<std::string> key_header, std::vector<std::string> attr_header);
   //~relation();
   void set_name(std::string name); //sets the name of the table
+  void set_header(std::vector<std::string> attr_header);
   std::string get_name() const;	//returns the name of the table
+  std::vector<std::string> get_header() const;
   void save(); //checks if there exists a .db file and writes all the commands to ceate the table to the file
   void show(); //prints out the content of the string to std::cout
 	table get_table();	//returns a copy of its values
