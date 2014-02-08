@@ -2,6 +2,7 @@
 #define _ATTRIBUTE
 
 #include <string>
+#include <cstdlib>
 
 class Attribute{
 	int i_value;

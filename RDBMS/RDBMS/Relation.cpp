@@ -115,3 +115,43 @@ void Relation::save(){
 void Relation::show(){
 	//add function to show table
 }
+
+//handled by Oliver Hatfield
+Relation Relation::renaming(std::vector<std::string> attr_list) {
+	/*
+	 i'd like to have some way to know where these new titles go.
+	 pass a vector of indices (ints) along with attr_list?
+	 do i just assume that it passes a new name for EVERY attr_name??
+	 
+	 need to create NEW relation, based on what is called here.
+	 */
+	
+	
+	//INCOMPLETE!!! waiting on finished constructor.
+		//also, would this code work?
+	
+	Relation temp(this->get_name(), /*get_key_header*/, attr_list);
+	temp.insert_into(*this);	//place all tuples from this relation into temp relation
+	
+	return temp;
+}
+
+//handled by Oliver Hatfield
+Relation Relation::cross_product(Relation other_table) {
+	Relation temp;
+	
+	/*
+	 how do i dig out the individual tuples from other_table? i need to be able to work with those...
+	 i need map access.
+	 
+	 concatenate the two headers, making the new relation doubly-wide
+	 
+	 
+	 
+	 */
+	
+	//INCOMPLETE
+		//NEED map accessor for other_table.
+	
+	return temp;
+}
