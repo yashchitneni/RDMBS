@@ -18,6 +18,8 @@ class relation{
   std::vector<std::string> commands; //might not need
   bool meets_condition(std::string condition, std::pair<tuple, tuple> row);
   int header_pos(std::string name);
+	bool is_header(int pos);
+	bool key_exists(tuple key);
 
 
 public:
@@ -33,15 +35,17 @@ public:
   std::string get_name() const;	//returns the name of the table
   void save(); //checks if there exists a .db file and writes all the commands to ceate the table to the file
   void show(); //prints out the content of the string to std::cout
+	table get_table();	//returns a copy of its values
+
   /*
 	Will also need get and set functions to access individual rows
   */
   //create_table(); constructor
   //drop_table(); destructor
-  bool insert_into(std::vector<std::string> literals);
-  bool insert_into(relation other_table);
+  bool insert_into(std::vector<std::string> literals);	//
+  bool insert_into(relation other_table);	//
   bool update(std::vector<std::string> attr_list, std::vector<std::string> conjunctions);
-  bool delete_from(std::vector<std::string> conjunctions);
+  bool delete_from(std::vector<std::string> conjunctions);	//
   relation selection(std::vector<std::string> conjunctions);
   relation projection(std::vector<std::string> attr_list);
   relation renaming(std::vector<std::string> attr_list);
