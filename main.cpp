@@ -1,7 +1,5 @@
 #include "database.h"
 #include <iostream>
-//#include <string>	//OH: included only for test
-//#include <vector>	//OH: included only for test
 
 int main(){
   std::vector<relation> table;
@@ -16,8 +14,12 @@ int main(){
 	std::vector<std::string> keys {"%Name"};
 	std::vector<std::string> attrs {"Town","Num_Friends"};
 	relation::relation friends("Friends", keys, attrs);
+	//grammar::program("INSERT INTO Friends VALUES FROM (\"Max\", \"Anytown\", 5); ", table);
+	std::vector<std::string> literals {"Max","Anytomn","20"};
+	friends.insert_into(literals);
 	std::vector<std::string> new_attrs {"Residence","Aquaintances"};
 	friends.renaming(new_attrs);
+	friends.show();
 	
   return 0;
 }

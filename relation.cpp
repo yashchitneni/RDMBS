@@ -371,6 +371,8 @@ relation relation::renaming(std::vector<std::string> attr_list) {
 relation relation::cross_product(relation other_table) {
 	relation temp;
 	
+	
+	
 	/*
 	 how do i dig out the individual tuples from other_table? i need to be able to work with those...
 	 i need map access.
