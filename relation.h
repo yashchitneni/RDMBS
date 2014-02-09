@@ -46,7 +46,7 @@ public:
   bool update(std::vector<std::string> attr_list, std::vector<std::string> conjunctions);
   bool delete_from(std::vector<std::string> conjunctions);
   relation selection(std::vector<std::string> conjunctions);
-  relation projection(std::vector<std::string> attr_list);
+  relation* projection(std::vector<std::string> attr_list);
   relation renaming(std::vector<std::string> attr_list);
   relation set_union(relation other_table);
   relation set_difference(relation other_table);

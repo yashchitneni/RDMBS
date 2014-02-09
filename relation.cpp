@@ -268,7 +268,6 @@ bool relation::insert_into(relation other_table){
 bool relation::delete_from(std::vector<std::string> conjunctions){
 	std::regex reg_compare("\\s*&&\\s*");
 	std::smatch m;
-	std::vector<bool> remove;
 	for (auto conj : conjunctions){
 		std::vector<std::string> compares; 
 		while (std::regex_search(conj, m, reg_compare)){
@@ -293,9 +292,7 @@ bool relation::delete_from(std::vector<std::string> conjunctions){
 	return true;
 }
 
-
 bool relation::update(std::vector<std::string> attr_list, std::vector<std::string> conjunctions){
-
 	std::regex reg_amp("\\s*&&\\s*");
 	std::regex reg_equal("([_[:alpha:]][_\\w*]+)(?:\\s*=\\s*)(?:\"?)(\\w*)(?:\"?)");
 	std::smatch m;
@@ -337,49 +334,45 @@ bool relation::update(std::vector<std::string> attr_list, std::vector<std::strin
 	return true;
 }
 
-
-relation relation::projection(std::vector<std::string> attr_list){
+relation* relation::projection(std::vector<std::string> attr_list){
 	std::vector<int> attrib_positions;
 	std::vector<std::string> projection_header;
-	relation projection;
-
+	std::vector<std::string> projection_key;
 	//Finds column positions (placed into attrib_positions) to access when projecting the relation
 	for (auto attr_iter = attr_list.begin(); attr_iter != attr_list.end(); ++attr_iter){
-		int position = this->header_pos(*attr_iter);
-
+		int position = header_pos(*attr_iter);
 		if (position != -1) {
 			attrib_positions.push_back(position);
-			projection_header.push_back(header[position]);
+			projection_header.push_back(*attr_iter + "INTEGER");
+			if (is_key(position)){
+				projection_key.push_back(*attr_iter);
+			}
 		}
-		else {
-			std::printf("%s does not match!", (*attr_iter).c_str());	//OH: my IDE recommended putting in c_str(). ok?
+		else{
+			std::printf("%s does not match!", (*attr_iter).c_str());
 			//FIXME fail gracefully somehow
+			//dont worry if the column doesnt exist, just dont copy it into the new table
 		}
 	}
-
-	//projection.set_header(projection_header);
-
+	relation* new_relation = new relation("test", projection_key, projection_header);
 	//For each projected column, push the attribute at that position from original row to the new row, then add the row to the new relation's table
 	for (auto table_iter = t.begin(); table_iter != t.end(); ++table_iter){
-		relation::tuple projection_row;
-		relation::tuple keys;
-
-		for (auto attrib_iter = attrib_positions.begin(); attrib_iter != attrib_positions.end(); ++attrib_iter){
-
-			if (this->is_key(*attrib_iter)) {
-				keys.push_back(table_iter->second[*attrib_iter]);
-			}
-
-			projection_row.push_back(table_iter->second[*attrib_iter]);
+		tuple projection_row;
+		tuple keys;
+		tuple old_row = table_iter->second;
+		for (auto pos : attrib_positions){
+			attr* new_a;
+			if (old_row[pos]->get_class() == attr::attr_type::INTEGER)
+				new_a = new integer(*dynamic_cast<integer*>(old_row[pos]));
+			else
+				new_a = new var_char(*dynamic_cast<var_char*>(old_row[pos]));
+			projection_row.push_back(new_a);
+			if (is_key(pos))
+				keys.push_back(new_a);
 		}
-
-		if (keys.size() == 0){
-			keys.push_back(projection_row[0]);
-		}
-
-		projection.get_table()[keys] = projection_row;
+		new_relation->insert(std::pair<tuple, tuple>(keys, projection_row));
 	}
-	return projection;
+	return new_relation;
 }
 
 //handled by Oliver Hatfield
@@ -389,7 +382,7 @@ relation relation::set_union(relation other_table){
 
 	what should i do about potential duplicates?
 	*/
-
+	
 	relation temp;
 
 	if (header.size() != other_table.header.size()) {
