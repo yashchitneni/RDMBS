@@ -18,6 +18,7 @@ class relation{
   std::vector<std::string> commands; //might not need
   bool meets_condition(std::string condition, std::pair<tuple, tuple> row);
   int header_pos(std::string name);
+  int find_key(attr* attribute, tuple keys);
 	bool is_key(int pos); //is_key seemed more appropriate
 	bool key_exists(tuple key);
 

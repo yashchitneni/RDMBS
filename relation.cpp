@@ -120,7 +120,7 @@ bool relation::meets_condition(std::string condition, std::pair<tuple, tuple> ro
 	  out = (*op2 < *op1);
 	}
 	std::printf("\n\n");
-	delete op1;
+	delete op1; //these cause my iterator within my update function to break. will we need to delete these values?
 	delete op2;
 	return out;
   }
@@ -133,6 +133,14 @@ int relation::header_pos(std::string name){
 	  return k;
   }
   return -1;
+}
+
+int relation::find_key(attr* attribute, tuple keys){
+	for (int k = 0; k < keys.size(); k++){
+		if (*keys[k] == *attribute)
+			return k;
+	}
+	return -1;
 }
 
 bool relation::is_key(int pos){
@@ -231,9 +239,9 @@ bool relation::insert_into(relation other_table){
 	return true;
 }
 
-bool relation::update(std::vector<std::string> attr_list, std::vector<std::string> conjunctions){
+bool relation::update(std::vector<std::string> attr_list, std::vector<std::string> conjunctions){ //need to implement recursive descent parser for the comparisons....
 	std::vector<std::string> comparisons;
-	std::regex reg_amp("([\\w_\"\\s*(==|!=|<=|>=|<|>)]+)(?:\\s*&&\\s*)*([\\w_\"\\s*(==|!=|<=|>=|<|>)]+)*");
+	std::regex reg_amp("([\\w_\"\\s*(==|!=|<=|>=|<|>)]+)(?:\\s*)(&&|\|\|)(?:\\s*)([\\w_\"\\s*(==|!=|<=|>=|<|>)]+)*");
 	std::smatch amp_match;
 
 	//Split conjunctions into individual comparisons
@@ -248,12 +256,15 @@ bool relation::update(std::vector<std::string> attr_list, std::vector<std::strin
 		}
 	}
 
+	std::vector<std::pair<tuple, tuple>> new_rows;
 	//Check which rows satisfy the condition of the comparisons, then modify said rows according to attr_list
-	for (auto row_iter = t.begin(); row_iter != t.end(); ++row_iter){
+	//for (auto row_iter = t.begin(); row_iter != t.end(); ++row_iter){
+	auto row_iter = t.begin();
+	while (row_iter != t.end()){
 
 		for (auto comp_iter = comparisons.begin(); comp_iter != comparisons.end(); ++comp_iter){
 
-			if (this->meets_condition(*comp_iter, *row_iter)){ //breaking on a condition.
+			if (this->meets_condition(*comp_iter, *row_iter)){
 				std::vector<std::pair<std::string, attr*>> changes;
 				std::regex reg_equal("([\\w_\"]+)(?:\\s*=\\s*)([\\w_\"]+)");
 				std::smatch equ_match;
@@ -277,12 +288,38 @@ bool relation::update(std::vector<std::string> attr_list, std::vector<std::strin
 					}
 				}
 
+				tuple new_key;
+				tuple new_row = row_iter->second;
+				bool key_changed = false;
+
 				for (auto change_iter = changes.begin(); change_iter != changes.end(); ++change_iter){
 					std::string& attr_name = change_iter->first;
-					*row_iter->second[this->header_pos(attr_name)] = *change_iter->second; //may cause error when changes goes out of scope?
+					if (this->is_key(this->header_pos(attr_name))){
+						int key_pos = this->find_key(row_iter->second[this->header_pos(attr_name)], row_iter->first);
+
+						for (int x = 0; x < row_iter->first.size(); ++x){
+							if (x != key_pos){
+								new_key.push_back(row_iter->first[x]);
+							}
+						}
+						new_row[this->header_pos(attr_name)] = change_iter->second;
+						key_changed = true;
+					}
+				}
+
+				if (key_changed){
+					new_rows.push_back(std::make_pair(new_key, new_row));
+					t.erase(row_iter++);
+				}
+				else{
+					++row_iter;
 				}
 			}
 		}
+	}
+
+	for (auto new_row_it = new_rows.begin(); new_row_it != new_rows.end(); ++new_row_it){
+		t[new_row_it->first] = new_row_it->second;
 	}
 	return true;
 }
