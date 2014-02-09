@@ -59,8 +59,7 @@ bool relation::meets_condition(std::string condition, std::pair<tuple, tuple> ro
 	  int pos = header_pos(operand1);
 	  if (pos != -1){
 		std::printf("Operand1 is a attr header\n");
-		//if (pos < n_keys) op1 = row.first[pos];
-		//else op1 = row.second[pos];
+		if (pos < n_keys) op1 = row.first[pos];
 		op1 = row.second[pos];
 		printf("%d\n", op1->get_class());
 	  }
@@ -262,12 +261,13 @@ bool relation::update(std::vector<std::string> attr_list, std::vector<std::strin
 				for (auto attr_iter = attr_list.begin(); attr_iter != attr_list.end(); ++attr_iter){
 
 					if (std::regex_search(*attr_iter, equ_match, reg_equal)){
-						std::string attr_name = amp_match[1].str();
-						std::string attr_string = amp_match[2].str();
+						printf("265\n");
+						std::string attr_name = equ_match[1].str();
+						std::string attr_string = equ_match[2].str();
 						attr* attribute;
 
-						if (isalpha(attr_string[0])){
-							attribute = new var_char(attr_string);
+						if (attr_string.size() >= 2 && isalpha(attr_string[1])){
+							attribute = new var_char(attr_string.substr(1,attr_string.size()-2));
 						}
 						else {
 							attribute = new integer(atoi(attr_string.c_str()));
