@@ -68,7 +68,7 @@ relation::relation(const relation& other_table){
 				new_keys.push_back(new_attr);
 			}
 		}
-		t.insert(std::pair<std::vector<attr*>, std::vector<attr*>>(new_keys, new_row));
+		t.insert(std::pair<tuple, tuple>(new_keys, new_row));
 	}
 }
 
@@ -83,22 +83,10 @@ relation::~relation(){
 	}
 }
 
-void relation::set_name(std::string name){
-  table_name = name;
-}
-
-void relation::insert(std::pair<std::vector<attr*>, std::vector<attr*>> row){
-	t.insert(row);
-}
-
-relation::table relation::get_table() const{
-	return t;
-}
-
 bool relation::meets_condition(std::string condition, std::pair<tuple, tuple> row){
 	std::regex reg_all("([\\w_]+|\\\".*\\\")(?:\\s*)(==|!=|<=|>=|<|>)(?:\\s*)([\\w_]+|\\\".*\\\")");
-  std::smatch m;
-  if (std::regex_search(condition, m, reg_all)){
+	std::smatch m;
+	if (std::regex_search(condition, m, reg_all)){
 		attr* op1;
 		attr* op2;
 		std::string operation = m[2].str();
@@ -175,16 +163,16 @@ bool relation::meets_condition(std::string condition, std::pair<tuple, tuple> ro
 		delete op1;
 		delete op2;
 		return out;
-  }
-  return false;
+	}
+	return false;
 }
 
 int relation::header_pos(std::string name){
-  for (unsigned int k = 0; k < header.size(); k++){
+	for (unsigned int k = 0; k < header.size(); k++){
 		if (header[k] == name || (header[k] == "%" + name))
-	  return k;
-  }
-  return -1;
+			return k;
+	}
+	return -1;
 }
 
 bool relation::is_key(int pos){
@@ -192,6 +180,18 @@ bool relation::is_key(int pos){
 		return true;
 	}
 	return false;
+}
+
+void relation::set_name(std::string name){
+  table_name = name;
+}
+
+void relation::insert(std::pair<std::vector<attr*>, std::vector<attr*>> row){
+	t.insert(row);
+}
+
+relation::table relation::get_table() const{
+	return t;
 }
 
 void relation::save(){
@@ -265,33 +265,6 @@ bool relation::insert_into(relation other_table){
 	return true;
 }
 
-bool relation::delete_from(std::vector<std::string> conjunctions){
-	std::regex reg_compare("\\s*&&\\s*");
-	std::smatch m;
-	for (auto conj : conjunctions){
-		std::vector<std::string> compares; 
-		while (std::regex_search(conj, m, reg_compare)){
-			compares.push_back(m.prefix().str());
-			conj = m.suffix().str();
-		}
-		compares.push_back(conj);
-		int pos = 0;
-		for (auto row: t){
-			for (unsigned int j = 0; j < compares.size(); j++){
-				if (meets_condition(compares[j], row)){
-					if (j == compares.size()-1){
-						t.erase(t.find(row.first));
-					}
-					continue;
-				}
-				break;
-			}
-			pos++;
-		}
-	}
-	return true;
-}
-
 bool relation::update(std::vector<std::string> attr_list, std::vector<std::string> conjunctions){
 	std::regex reg_amp("\\s*&&\\s*");
 	std::regex reg_equal("([_[:alpha:]][_\\w*]+)(?:\\s*=\\s*)(?:\"?)(\\w*)(?:\"?)");
@@ -332,6 +305,37 @@ bool relation::update(std::vector<std::string> attr_list, std::vector<std::strin
 		}
 	}
 	return true;
+}
+
+bool relation::delete_from(std::vector<std::string> conjunctions){
+	std::regex reg_compare("\\s*&&\\s*");
+	std::smatch m;
+	for (auto conj : conjunctions){
+		std::vector<std::string> compares; 
+		while (std::regex_search(conj, m, reg_compare)){
+			compares.push_back(m.prefix().str());
+			conj = m.suffix().str();
+		}
+		compares.push_back(conj);
+		int pos = 0;
+		for (auto row: t){
+			for (unsigned int j = 0; j < compares.size(); j++){
+				if (meets_condition(compares[j], row)){
+					if (j == compares.size()-1){
+						t.erase(t.find(row.first));
+					}
+					continue;
+				}
+				break;
+			}
+			pos++;
+		}
+	}
+	return true;
+}
+
+relation* relation::selection(std::vector<std::string> conjunctions){
+	return new relation();
 }
 
 relation* relation::projection(std::vector<std::string> attr_list){
@@ -375,8 +379,45 @@ relation* relation::projection(std::vector<std::string> attr_list){
 	return new_relation;
 }
 
+relation* relation::renaming(std::vector<std::string> attr_list){
+	relation* new_relation;
+	std::vector<std::string> new_key_header;
+	std::vector<std::string> new_attr_header;
+	for (int k = 0; k < attr_list.size() && k < header.size(); k++){
+		if (is_key(k)){
+			new_key_header.push_back(attr_list[k]);
+			new_attr_header.push_back(attr_list[k] + " INTEGER");
+		}
+		else
+			new_attr_header.push_back(attr_list[k] + " INTEGER");
+	}
+	new_relation = new relation("", new_key_header, new_attr_header);
+	for (auto x : t){
+		tuple new_row;
+		tuple new_keys;
+		tuple other_attr = x.second;
+		for (unsigned int k = 0; k < other_attr.size(); k++){
+			attr* new_attr;
+			if (other_attr[k]->get_class() == attr::attr_type::INTEGER){
+				integer* temp = dynamic_cast<integer*>(other_attr[k]);
+				new_attr = new integer(*temp);
+			}
+			else{
+				var_char* temp = dynamic_cast<var_char*>(other_attr[k]);
+				new_attr = new var_char(*temp);
+			}
+			new_row.push_back(new_attr);
+			if (is_key(k)){
+				new_keys.push_back(new_attr);
+			}
+		}
+		new_relation->insert(std::pair<tuple, tuple>(new_keys, new_row));
+	}
+	return new_relation;
+}
+
 //handled by Oliver Hatfield
-relation* relation::set_union(relation other_table){
+relation* relation::set_union(relation& other_table){
 	if (header.size() != other_table.header.size()) {
 		return new relation();
 	}
@@ -411,7 +452,11 @@ relation* relation::set_union(relation other_table){
 	return new_relation;
 }
 
-relation* relation::cross_product(relation other_table) {;
+relation* relation::set_difference(relation& other_table){
+	return new relation();
+}
+
+relation* relation::cross_product(relation& other_table) {;
 	std::vector<std::string> new_key_header;
 	std::vector<std::string> new_attr_header;
 	std::vector<std::string> other_header = other_table.header;
@@ -471,4 +516,8 @@ relation* relation::cross_product(relation other_table) {;
 		}
 	}
 	return new_relation;
+}
+
+relation* relation::natural_join(relation& other_table){
+	return new relation();
 }

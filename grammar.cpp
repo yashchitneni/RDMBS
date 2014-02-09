@@ -296,12 +296,10 @@ relation& grammar::expr(std::string input, std::vector<relation>& tables){
 	std::printf("Unable to discern project arguments\n");
   }
   if (std::regex_search(input, m, reg_renaming)){
-	std::printf("case: %s\n", "renaming");
 	std::string arg = m.suffix().str();
 	std::regex reg_attr("\\(\\s*[_[:alpha:]][_\\w]*\\s*(,\\s*[_[:alpha:]][_\\w]*\\s*)*\\)");
 	if (std::regex_search(arg, m, reg_attr)){
-	  std::string attr_list = m.str().substr(1, m.str().size() - 2);
-	  std::printf("attribute list: %s\natomic: %s\n", attr_list.c_str(), m.suffix().str().c_str());
+	  std::string attr_list = m.str().substr(1, m.str().size() - 2);\
 	  relation atomic = atomic_expr(m.suffix().str(), tables);
 		return renaming(attr_list, atomic);
 	}
@@ -379,8 +377,7 @@ relation& grammar::projection(std::string attr_list, relation& table){
 
 relation& grammar::renaming(std::string attr_list, relation& table){
   std::vector<std::string> attr_names = split_attr(attr_list);
-  //add function for a table to rename the columns
-  return relation();
+	return *(table.renaming(attr_names));
 }
 
 relation& grammar::table_union(relation& table1, relation& table2){
