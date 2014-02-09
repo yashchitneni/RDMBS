@@ -1,7 +1,7 @@
 #include "grammar.h"
 #include <iostream>
 #include <cstdio>
-//
+
 void grammar::program(std::string input, std::vector<relation>& tables){
   std::regex reg_semi_colon(";");
   std::regex reg_cmd("OPEN|CLOSE|WRITE|EXIT|SHOW|(CREATE TABLE)|UPDATE|(INSERT INTO)|(DELETE FROM)");
@@ -20,7 +20,7 @@ void grammar::program(std::string input, std::vector<relation>& tables){
   query(input, tables);
   return;
 }
-//
+
 void grammar::program( std::vector<relation>& tables){
   std::regex reg_semi_colon(";");
   std::regex reg_exit("^\\s*EXIT\\s*;\\s*$");
@@ -124,7 +124,6 @@ void grammar::command(std::string input, std::vector<relation>& tables){
 		std::string arg = m.suffix().str();
 		if (std::regex_search(arg, m, reg_rel_name)){
 			std::string rel_name = m.str();
-			std::printf("Relation name: %s\n", rel_name.c_str());
 			arg = m.suffix().str();
 			std::regex reg_set("SET");
 			if (std::regex_search(arg, m, reg_set)){
@@ -133,7 +132,6 @@ void grammar::command(std::string input, std::vector<relation>& tables){
 				if (std::regex_search(arg, m, reg_attr)){
 					std::string attr_list = m.prefix().str();
 					std::string condition = m.suffix().str();
-					std::printf("Attr: %s\nCondition: %s\n", attr_list.c_str(), condition.c_str());
 					update_cmd(rel_name, attr_list, condition, tables);
 					return;
 				}
@@ -237,7 +235,7 @@ void grammar::update_cmd(std::string table_name, std::string attrs, std::string 
   relation* table = &tables[pos];
   std::vector<std::string> attr_list = split_attr(attrs);
   std::vector<std::string> conjunctions = split_condition(conditions);
-  //table->update(attr_list, conjunctions);
+  table->update(attr_list, conjunctions);
 }
 
 void grammar::insert_cmd(relation& table, relation other_table){
@@ -260,7 +258,7 @@ void grammar::query(std::string input, std::vector<relation>& tables){
   std::regex_search(input, m, reg_rel_name);
   std::string relation_name = m.prefix().str();
   std::string expr_arg = m.suffix().str();
-  std::printf("relation-name: %s\nquery: %s\n", relation_name.c_str(), expr_arg.c_str());
+  std::printf("%s: %s\n", relation_name.c_str(), expr_arg.c_str());
   relation new_relation = expr(m.suffix().str(), tables);
   new_relation.set_name(relation_name);
   tables.push_back(new_relation);
@@ -288,12 +286,10 @@ relation& grammar::expr(std::string input, std::vector<relation>& tables){
 	std::printf("Unable to discern select arguments\n");
   }
   if (std::regex_search(input, m, reg_projection)){
-	std::printf("case: %s\n", "projection");
 	std::string arg = m.suffix().str();
 	std::regex reg_attr("\\(\\s*[_[:alpha:]][_\\w]*\\s*(,\\s*[_[:alpha:]][_\\w]*\\s*)*\\)");
 	if (std::regex_search(arg, m, reg_attr)){
 	  std::string attr_list = m.str().substr(1, m.str().size() - 2);
-	  std::printf("attribute list: %s\natomic: %s\n", attr_list.c_str(), m.suffix().str().c_str());
 	  relation atomic = atomic_expr(m.suffix().str(), tables);
 		return projection(attr_list, atomic);
 	}
@@ -383,8 +379,7 @@ relation& grammar::selection(std::string condition, relation& table){
 
 relation& grammar::projection(std::string attr_list, relation& table){
   std::vector<std::string> attr_names = split_attr(attr_list);
-  //add function for a table to remove columns that dont match attr_lists
-	return *(new relation());
+	return *(table.projection(attr_names));
 }
 
 relation& grammar::renaming(std::string attr_list, relation& table){
