@@ -295,57 +295,42 @@ bool relation::delete_from(std::vector<std::string> conjunctions){
 
 
 bool relation::update(std::vector<std::string> attr_list, std::vector<std::string> conjunctions){
-	std::vector<std::string> comparisons;
-	std::regex reg_amp("([\\w_\"\\s*(==|!=|<=|>=|<|>)]+)(?:\\s*&&\\s*)([\\w_\"\\s*(==|!=|<=|>=|<|>)]+)");
-	std::smatch amp_match;
 
-	//Split conjunctions into individual comparisons
-	for (auto conj_iter = conjunctions.begin(); conj_iter != conjunctions.end(); ++conj_iter){
-		if (std::regex_search(*conj_iter, amp_match, reg_amp)) {
-			for (auto match_iter = amp_match.begin(); match_iter != amp_match.end(); ++match_iter){
-				comparisons.push_back(*match_iter);
-			}
-		}
-		else{
-			return false;
+	std::regex reg_amp("\\s*&&\\s*");
+	std::regex reg_equal("([_[:alpha:]][_\\w*]+)(?:\\s*=\\s*)(?:\"?)(\\w*)(?:\"?)");
+	std::smatch m;
+	std::vector<std::pair<int, std::string>> changes;
+	for (auto attr_iter = attr_list.begin(); attr_iter != attr_list.end(); ++attr_iter){
+		if (std::regex_search(*attr_iter, m, reg_equal)){
+			std::string attr_name = m[1].str();
+			std::string attr_string = m[2].str();
+			int pos_header = header_pos(attr_name);
+			if (pos_header != -1)
+				changes.push_back(std::pair<int, std::string>(pos_header, attr_string));
 		}
 	}
-
-	//Check which rows satisfy the condition of the comparisons, then modify said rows according to attr_list
-	for (auto row_iter = t.begin(); row_iter != t.end(); ++row_iter){
-
-		for (auto comp_iter = comparisons.begin(); comp_iter != comparisons.end(); ++comp_iter){
-
-			if (this->meets_condition(*comp_iter, *row_iter)){ //this may fail if trailing spaces are a problem for meets_condition
-				std::vector<std::pair<std::string, attr*>> changes;
-				std::regex reg_equal("([\\w_\"]+)(?:\\s*=\\s*)([\\w_\"]+)");
-				std::smatch equ_match;
-
-				for (auto attr_iter = attr_list.begin(); attr_iter != attr_list.end(); ++attr_iter){
-
-					if (std::regex_search(*attr_iter, equ_match, reg_equal)){
-						std::string attr_name = amp_match[1].str();
-						std::string attr_string = amp_match[2].str();
-						attr* attribute;
-
-						if (isalpha(attr_string[0])){
-							attribute = new var_char(attr_string);
-						}
-						else {
-							attribute = new integer(atoi(attr_string.c_str()));
-						}
-
-						changes.push_back(std::make_pair(std::string(attr_name), attribute));
-					}
-				}
-
-				for (auto change_iter = changes.begin(); change_iter != changes.end(); ++change_iter){
-					std::string& attr_name = change_iter->first;
-					*row_iter->second[this->header_pos(attr_name)] = *change_iter->second; //may cause error when changes goes out of scope?
+	for (auto conj : conjunctions){
+		std::vector<std::string> compares;
+		while (std::regex_search(conj, m, reg_amp)){
+			compares.push_back(m.prefix().str());
+			conj = m.suffix().str();
+		}
+		compares.push_back(conj);
+		for (auto row_iter = t.begin(); row_iter != t.end(); ++row_iter){
+			bool update_row = true;
+			for (auto comp_iter = compares.begin(); comp_iter != compares.end() && update_row; ++comp_iter){
+				if (!meets_condition(*comp_iter, *row_iter)){
+					update_row = false;
 				}
 			}
-			else{
-				return false;
+			if (update_row){
+				for (auto update_attr : changes){
+					int pos_header = update_attr.first;
+					std::string new_value = update_attr.second;
+					row_iter->second[pos_header]->set_value(new_value);
+					if (row_iter->second[pos_header]->get_value() != new_value)
+						std::printf("Error updating value\n");
+				}
 			}
 		}
 	}
