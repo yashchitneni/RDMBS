@@ -1,7 +1,7 @@
 #include "grammar.h"
 #include <iostream>
 #include <cstdio>
-
+//
 void grammar::program(std::string input, std::vector<relation>& tables){
   std::regex reg_semi_colon(";");
   std::regex reg_cmd("OPEN|CLOSE|WRITE|EXIT|SHOW|(CREATE TABLE)|UPDATE|(INSERT INTO)|(DELETE FROM)");
@@ -20,7 +20,7 @@ void grammar::program(std::string input, std::vector<relation>& tables){
   query(input, tables);
   return;
 }
-
+//
 void grammar::program( std::vector<relation>& tables){
   std::regex reg_semi_colon(";");
   std::regex reg_exit("^\\s*EXIT\\s*;\\s*$");
@@ -105,15 +105,12 @@ void grammar::command(std::string input, std::vector<relation>& tables){
 		std::regex reg_rel_name("[_[:alpha:]][_\\w]*");
 		std::string arg = m.suffix().str();
 		if (std::regex_search(arg, m, reg_rel_name)){
-			std::cout << m.str() << std::endl;
 			std::string rel_name = m.str();
 			arg = m.suffix().str();
-			std::printf("Relation name: %s\n", rel_name.c_str());
 			std::regex reg_key("(?:\\(\\s*)(.*)(?:\\)\\s*)(?:\\s*PRIMARY KEY\\s*)(?:\\(\\s*)(.*)(?:\\s*\\))");
 			if (std::regex_search(arg, m, reg_key)){
 				std::string attr_list = m[1].str();
 				std::string key_list = m[2].str();
-				std::printf("Attribute list: %s\nPrimary key: %s\n", attr_list.c_str(), key_list.c_str());
 				create_cmd(rel_name, key_list, attr_list, tables);
 				return;
 			}
@@ -159,7 +156,6 @@ void grammar::command(std::string input, std::vector<relation>& tables){
 			if (std::regex_search(arg, m, reg_expr)){
 				std::string expr_arg = m.suffix().str();
 				relation other_table = expr(expr_arg, tables);
-				std::printf("Relation name: %s\nExpr: %s\n", rel_name.c_str(), expr_arg.c_str());
 				insert_cmd(*table, other_table);
 				return;
 			}
@@ -189,7 +185,6 @@ void grammar::command(std::string input, std::vector<relation>& tables){
 			std::regex reg_cond("WHERE\\s*");
 			if (std::regex_search(arg, m, reg_cond)){
 				std::string condition = m.suffix().str();
-				std::printf("Relation name: %s\nCondition: %s\n", rel_name.c_str(), condition.c_str());
 				delete_cmd(*table, condition);
 				return;
 			}
@@ -204,12 +199,11 @@ void grammar::open_cmd(std::string input, std::vector<relation>& tables){
   std::ifstream table_file(file_name);
   if (table_file.fail()) std::printf("Failed to open table file: %s\n", file_name.c_str());
   else{
-	std::printf("Opened: %s\n", file_name.c_str());
-	std::string line;
-	while (std::getline(table_file, line)){
-	  std::printf("%s\n", line.c_str());
-	  program(line, tables);
-	}
+		std::printf("Opened: %s\n", file_name.c_str());
+		std::string line;
+		while (std::getline(table_file, line)){
+			program(line, tables);
+		}
   }
 }
 
@@ -234,8 +228,7 @@ void grammar::show_cmd(relation& table){
 void grammar::create_cmd(std::string table_name, std::string keys, std::string attrs, std::vector<relation>& tables){
   std::vector<std::string> key_list = split_attr(keys);
   std::vector<std::string> attr_list = split_attr(attrs);
-  relation new_relation(table_name, key_list, attr_list);
-  tables.push_back(new_relation);
+	tables.push_back(relation(table_name, key_list, attr_list));
 }
 
 void grammar::update_cmd(std::string table_name, std::string attrs, std::string conditions, std::vector<relation>& tables){
@@ -248,7 +241,7 @@ void grammar::update_cmd(std::string table_name, std::string attrs, std::string 
 }
 
 void grammar::insert_cmd(relation& table, relation other_table){
-  //table.insert_into(other_table);
+  table.insert_into(other_table);
 }
 
 void grammar::insert_cmd(relation& table, std::string literals){
@@ -258,7 +251,7 @@ void grammar::insert_cmd(relation& table, std::string literals){
 
 void grammar::delete_cmd(relation& table, std::string condition){
   std::vector<std::string> conjunctions = split_condition(condition);
-  //table.delete_from(conjunctions);
+  table.delete_from(conjunctions);
 }
 
 void grammar::query(std::string input, std::vector<relation>& tables){
@@ -274,7 +267,6 @@ void grammar::query(std::string input, std::vector<relation>& tables){
 }
 
 relation& grammar::expr(std::string input, std::vector<relation>& tables){
-  std::printf("\n\nInput: %s\n", input.c_str());
   std::regex reg_select("^\\s*select\\s*");
   std::regex reg_projection("^\\s*project\\s*");
   std::regex reg_renaming("^\\s*rename\\s*");
@@ -340,14 +332,9 @@ relation& grammar::expr(std::string input, std::vector<relation>& tables){
 	//combine string declaration and relation declaration
   }
   if (std::regex_search(input, m, reg_product)){
-	std::printf("case: %s\n", "product");
-	std::string atomic1_str = m.prefix().str();
-	std::string atomic2_str = m.suffix().str();
-	std::printf("atomic1: %s\natomic2: %s\n", atomic1_str.c_str(), atomic2_str.c_str());
-	relation atomic1 = atomic_expr(atomic1_str, tables);
-	relation atomic2 = atomic_expr(atomic2_str, tables);
+	relation atomic1 = atomic_expr(m.prefix().str(), tables);
+	relation atomic2 = atomic_expr(m.suffix().str(), tables);
 	return product(atomic1, atomic2);
-	//combine string declaration and relation declaration
   }
   if (std::regex_search(input, m, reg_natural_join)){
 	std::printf("case: %s\n", "natural-join");
@@ -359,7 +346,6 @@ relation& grammar::expr(std::string input, std::vector<relation>& tables){
 	return natural_join(atomic1, atomic2);
 	//combine string declaration and relation declaration
   }
-  std::printf("atomic-expr: %s\n", input.c_str());
   return atomic_expr(input, tables);
 }
 
@@ -368,7 +354,6 @@ relation& grammar::atomic_expr(std::string input, std::vector<relation>& tables)
   std::smatch m;
   if (std::regex_search(input, m, reg_expr)){
 		std::string expr_str = m.str().substr(1, m.str().length() - 2);
-		std::printf("expr: %s\n", expr_str.c_str());
 		return expr(expr_str, tables);
   }
   int pos = find_relation(input, tables);
@@ -381,8 +366,8 @@ int grammar::find_relation(std::string input, std::vector<relation>& tables){
   std::regex name("[_[:alpha:]][_\\w]*");
   std::smatch m;
   if (std::regex_search(input, m, name)){
-	for (int k = 0; k < tables.size(); k++){
-	  if (tables[k].get_name() == m.str())
+	for (unsigned int k = 0; k < tables.size(); k++){
+	  if (tables[k].table_name == m.str())
 			return k;
 	}
   }
@@ -403,34 +388,28 @@ relation& grammar::projection(std::string attr_list, relation& table){
 }
 
 relation& grammar::renaming(std::string attr_list, relation& table){
-	std::vector<std::string> attr_names = split_attr(attr_list);
-	//add function for a table to rename the columns
-	relation temp;
-	return temp;
+  std::vector<std::string> attr_names = split_attr(attr_list);
+  //add function for a table to rename the columns
+  return relation();
 }
 
 relation& grammar::table_union(relation& table1, relation& table2){
-	//add function for a table to do a union
-	relation temp;
-	return temp;
+  //add function for a table to do a union
+  return relation();
 }
 
 relation& grammar::difference(relation& table1, relation& table2){
   //add function for a table to do a difference
-	relation temp;
-	return temp;
+  return relation();
 }
 
 relation& grammar::product(relation& table1, relation& table2){
-  //add function for a table to do a product
-	relation temp;
-	return temp;
+	return *table1.cross_product(table2);
 }
 
 relation& grammar::natural_join(relation& table1, relation& table2){
   //add function for a table to do a natural_join
-	relation temp;
-	return temp;
+  return relation();
 }
 
 std::vector<std::string> grammar::split_attr(std::string attr_list){

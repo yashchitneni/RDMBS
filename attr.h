@@ -2,7 +2,6 @@
 #define _ATTR
 
 #include <string>
-#include <cstdlib>
 
 class attr{
   int i_value;
@@ -31,12 +30,12 @@ public:
   int get_class() const { return INTEGER; }
   bool operator<(const attr& rhs) const {
 	const integer* other = static_cast<const integer*>(&rhs);
-	if (other == NULL) return 0;
+	if (other == NULL) return false;
 	return value < atoi(other->get_value().c_str());
   }
   bool operator==(const attr& rhs) const{
 	const integer* other = static_cast<const integer*>(&rhs);
-	if (other == NULL) return 0;
+	if (other == NULL) return false;
 	return value == atoi(other->get_value().c_str());
   }
 	bool operator!=(const attr& rhs) const {
@@ -57,12 +56,12 @@ public:
   int get_class() const { return VAR_CHAR; }
   bool operator<(const attr& rhs) const {
 	const var_char* other = static_cast<const var_char*>(&rhs);
-	if (other == NULL) return 0;
+	if (other == NULL) return false;
 	return value < other->get_value();
   }
   bool operator==(const attr& rhs) const {
 	const var_char* other = static_cast<const var_char*>(&rhs);
-	if (other == NULL) return 0;
+	if (other == NULL) return false;
 	return value == other->get_value();
   }
 	bool operator!=(const attr& rhs) const {

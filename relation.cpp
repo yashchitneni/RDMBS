@@ -1,8 +1,25 @@
 #include "relation.h"
 
+bool less_attr_pt::operator() (std::vector<attr*> lhs, std::vector<attr*> rhs) const {
+	for (unsigned int k = 0; k < lhs.size() && k < rhs.size(); k++){
+		if (*(lhs[k]) < *(rhs[k]))
+			return true;
+		if (*(lhs[k]) == *(rhs[k]))
+			continue;
+		else
+			return false;
+	}
+	return false;
+}
+
+/*
+	constructor takes in a table name and two vector<strings>
+	strings of key_header are of the form "attr_name"
+	strings of attr_header are of the form "attr_name TYPE" where TYPE can be INTEGER or VARCHAR(int)
+*/
 relation::relation(std::string name, std::vector<std::string> key_header, std::vector<std::string> attr_header){
-  n_keys = (int)key_header.size();
-  n_attr = (int)attr_header.size();
+  n_keys = key_header.size();
+  n_attr = attr_header.size();
   table_name = name;
 	std::regex reg_header("([_[:alpha:]][_\\w]*)(?:\\s*(INTEGER|VARCHAR))");
 	std::smatch m;
@@ -20,114 +37,150 @@ relation::relation(std::string name, std::vector<std::string> key_header, std::v
 	}
 }
 
+/*
+	copy constructor
+*/
+relation::relation(const relation& other_table){
+	table other_t = other_table.get_table();
+	std::vector<std::string> other_header = other_table.header;
+	n_keys = other_table.n_keys;
+	n_attr = other_table.n_attr;
+	table_name = other_table.table_name;
+	for (auto x : other_header){
+		header.push_back(x);
+	}
+	for (auto x: other_t){
+		tuple new_row;
+		tuple new_keys;
+		tuple other_attr = x.second;
+		for (unsigned int k = 0; k < other_attr.size(); k++){
+			attr* new_attr;
+			if (other_attr[k]->get_class() == attr::attr_type::INTEGER){
+				integer* temp = dynamic_cast<integer*>(other_attr[k]);
+				new_attr = new integer(*temp);
+			}
+			else{
+				var_char* temp = dynamic_cast<var_char*>(other_attr[k]);
+				new_attr = new var_char(*temp);
+			}
+			new_row.push_back(new_attr);
+			if (is_key(k)){
+				new_keys.push_back(new_attr);
+			}
+		}
+		t.insert(std::pair<std::vector<attr*>, std::vector<attr*>>(new_keys, new_row));
+	}
+}
+
+/*
+	destructor
+	*/
+relation::~relation(){
+	for (auto x : t){
+		for (auto a : x.second){
+			delete a;
+		}
+	}
+}
+
 void relation::set_name(std::string name){
   table_name = name;
 }
 
-void relation::set_header(std::vector<std::string> attr_header){
-	header = attr_header;
+void relation::insert(std::pair<std::vector<attr*>, std::vector<attr*>> row){
+	t.insert(row);
 }
 
-std::string relation::get_name() const{
-  return table_name;
-}
-
-std::vector<std::string> relation::get_header() const{
-	return header;
-}
-
-relation::table relation::get_table(){
+relation::table relation::get_table() const{
 	return t;
 }
 
 bool relation::meets_condition(std::string condition, std::pair<tuple, tuple> row){
-	std::regex reg_all("([\\w_\"]+)(?:\\s*)(==|!=|<=|>=|<|>)(?:\\s*)([\\w_\"]+)");
+	std::regex reg_all("([\\w_]+|\\\".*\\\")(?:\\s*)(==|!=|<=|>=|<|>)(?:\\s*)([\\w_]+|\\\".*\\\")");
   std::smatch m;
   if (std::regex_search(condition, m, reg_all)){
-	attr* op1;
-	attr* op2;
-	std::string operation = m[2].str();
-	std::string operand1 = m[1].str();
-	std::string operand2 = m[3].str();
-	std::printf("Operand: %s\nOperand: %s\n", operand1.c_str(), operand2.c_str());
-	std::regex reg_var_char("\\\".*\\\"");
-	if (std::regex_search(operand1, m, reg_var_char)){
-	  std::printf("Operand1 is a var_char\n");
-	  op1 = new var_char(m.str().substr(0, m.str().size() - 2));
-	}
-	else{
-	  int pos = header_pos(operand1);
-	  if (pos != -1){
-		std::printf("Operand1 is a attr header\n");
-		if (pos < n_keys) op1 = row.first[pos];
-		else op1 = row.second[pos - n_keys];
-	  }
-	  else{
-		std::printf("Operand1 is an int\n");
-		op1 = new integer(atoi(operand1.c_str()));
-	  }
-	}
-	if (std::regex_search(operand2, m, reg_var_char)){
-	  std::printf("Operand2 is a var_char\n");
-	  op2 = new var_char(m.str().substr(0, m.str().size() - 2));
-	}
-	else{
-	  int pos = header_pos(operand2);
-	  if (pos != -1){
-		std::printf("Operand2 is a attr header\n");
-		if (pos < n_keys) op2 = row.first[pos];
-		else op2 = row.second[pos - n_keys];
-	  }
-	  else{
-		std::printf("Operand2 is an int\n");
-		op2 = new integer(atoi(operand2.c_str()));
-	  }
-	}
-	if (op1->get_class() != op2->get_class()){
-	  std::printf("Cant compare: objects are not the same type\n");
-	  return false;
-	}
-	std::regex reg_equal("\\s*==\\s*");
-	std::regex reg_not_equal("\\s*!=\\s*");
-	std::regex reg_less("\\s*<\\s*");
-	std::regex reg_greater("\\s*>\\s*");
-	std::regex reg_less_equal("\\s*<=\\s*");
-	std::regex reg_greater_equal("\\s*>=\\s*");
-	bool out;
-	if (std::regex_search(condition, m, reg_equal)){
-	  std::printf("Operation: Equal\n");
-	  out = (*op1 == *op2);
-	}
-	else if (std::regex_search(condition, m, reg_not_equal)){
-	  std::printf("Operation: Not Equal\n");
-	  out = !(*op1 == *op2);
-	}
-	else if (std::regex_search(condition, m, reg_less_equal)){
-	  std::printf("Operation: Less Than\n");
-	  out = !(*op2 < *op1);
-	}
-	else if (std::regex_search(condition, m, reg_greater_equal)){
-	  std::printf("Operation: Greater Than\n");
-	  out = !(*op1 < *op2);
-	}
-	else if (std::regex_search(condition, m, reg_less)){
-	  std::printf("Operation: Less Than Equal\n");
-	  out = (*op1 < *op2);
-	}
-	else if (std::regex_search(condition, m, reg_greater)){
-	  std::printf("Operation: Greater Than Equal\n");
-	  out = (*op2 < *op1);
-	}
-	std::printf("\n\n");
-	delete op1;
-	delete op2;
-	return out;
+		attr* op1;
+		attr* op2;
+		std::string operation = m[2].str();
+		std::string operand1 = m[1].str();
+		std::string operand2 = m[3].str();
+		std::regex reg_var_char("(?:\\\")(.*)(?:\\\")");
+
+		if (std::regex_search(operand1, m, reg_var_char)){
+			op1 = new var_char(m[1].str());
+		}
+		else{
+			int pos = header_pos(operand1);
+			if (pos != -1){
+				if (row.second[pos]->get_class() == attr::attr_type::INTEGER)
+					op1 = new integer(*dynamic_cast<integer*>(row.second[pos]));
+				else
+					op1 = new var_char(*dynamic_cast<var_char*>(row.second[pos]));
+			}
+			else{
+				op1 = new integer(atoi(operand1.c_str()));
+				if (op1->get_value() != operand1.c_str())
+					return false;
+			}
+		}
+
+		if (std::regex_search(operand2, m, reg_var_char)){
+			op2 = new var_char(m[1].str());
+		}
+		else{
+			int pos = header_pos(operand2);
+			if (pos != -1){
+				if (row.second[pos]->get_class() == attr::attr_type::INTEGER)
+					op2 = new integer(*dynamic_cast<integer*>(row.second[pos]));
+				else
+					op2 = new var_char(*dynamic_cast<var_char*>(row.second[pos]));
+			}
+			else{
+				op2 = new integer(atoi(operand2.c_str()));
+				if (op2->get_value() != operand2.c_str())
+					return false;
+			}
+		}
+
+		if (op1->get_class() != op2->get_class()){
+			std::printf("Cant compare: objects are not the same type\n");
+			return false;
+		}
+
+		std::regex reg_equal("\\s*==\\s*");
+		std::regex reg_not_equal("\\s*!=\\s*");
+		std::regex reg_less("\\s*<\\s*");
+		std::regex reg_greater("\\s*>\\s*");
+		std::regex reg_less_equal("\\s*<=\\s*");
+		std::regex reg_greater_equal("\\s*>=\\s*");
+		bool out;
+		if (std::regex_search(condition, m, reg_equal)){
+			out = (*op1 == *op2);
+		}
+		else if (std::regex_search(condition, m, reg_not_equal)){
+			out = !(*op1 == *op2);
+		}
+		else if (std::regex_search(condition, m, reg_less_equal)){
+			out = !(*op2 < *op1);
+		}
+		else if (std::regex_search(condition, m, reg_greater_equal)){
+			out = !(*op1 < *op2);
+		}
+		else if (std::regex_search(condition, m, reg_less)){
+			out = (*op1 < *op2);
+		}
+		else if (std::regex_search(condition, m, reg_greater)){
+			out = (*op2 < *op1);
+		}
+		delete op1;
+		delete op2;
+		return out;
   }
   return false;
 }
 
 int relation::header_pos(std::string name){
-  for (int k = 0; k < header.size(); k++){
+  for (unsigned int k = 0; k < header.size(); k++){
 		if (header[k] == name || (header[k] == "%" + name))
 	  return k;
   }
@@ -141,18 +194,6 @@ bool relation::is_key(int pos){
 	return false;
 }
 
-bool relation::key_exists(tuple key){
-	for (auto x : t){
-		for (int k = 0; k < key.size(); k++){
-			if (!(*(x.first[k]) == *(key[k]))) //no != operatior, so had to improvise
-				break;
-			if (k == key.size() - 1)
-				return true;
-		}
-	}
-	return false;
-}
-
 void relation::save(){
   //add function to save the table
 }
@@ -160,11 +201,9 @@ void relation::save(){
 void relation::show(){
 	std::printf("TABLE NAME: %s\n", table_name.c_str());
 	for (auto x : header){
-		/*
 		if (x[0] == '%')
 			std::printf("%15s", x.substr(1, x.size()-1).c_str());
 		else
-		*/
 			std::printf("%15s", x.c_str());
 	}
 	std::printf("\n");
@@ -192,43 +231,68 @@ bool relation::insert_into(std::vector<std::string> literals){
 		}
 		attrs.push_back(new_attr);
 	}
-	for (int k = 0; k < header.size(); k++){
+	for (unsigned int k = 0; k < header.size(); k++){
 		if (is_key(k))
 			keys.push_back(attrs[k]);
 	}
-	if (!key_exists(keys)){
-		t[keys] = attrs;
-		return true;
-	}
-	return false;
+	t.insert(std::pair<std::vector<attr*>, std::vector<attr*>>(keys, attrs));
+	return true;
 }
 
 bool relation::insert_into(relation other_table){
-	table other_t = other_table.get_table();
-	tuple new_row;
-	tuple new_keys;
-	for (auto x : other_t){
-		if (t.find(x.first) != t.end()){
-			for (auto attrs : x.second){
-				attr* new_attr;
-				if (attrs->get_class() == attr::attr_type::INTEGER){
-					integer* temp = dynamic_cast<integer*>(attrs);
-					new_attr = new integer(*temp);
-				}
-				else{
-					var_char* temp = dynamic_cast<var_char*>(attrs);
-					new_attr = new var_char(*temp);
-				}
-				new_row.push_back(new_attr);
+	for (auto x : other_table.t){
+		tuple new_row;
+		tuple new_keys;
+		for (auto attrs : x.second){
+			attr* new_attr;
+			if (attrs->get_class() == attr::attr_type::INTEGER){
+				integer* temp = dynamic_cast<integer*>(attrs);
+				new_attr = new integer(*temp);
 			}
-			for (int k = 0; k < new_row.size(); k++){
-				if (is_key(k))
-					new_keys.push_back(new_row[k]);
+			else{
+				var_char* temp = dynamic_cast<var_char*>(attrs);
+				new_attr = new var_char(*temp);
 			}
+			new_row.push_back(new_attr);
+		}
+		for (unsigned int k = 0; k < new_row.size(); k++){
+			if (is_key(k)){
+				new_keys.push_back(new_row[k]);
+			}
+		}
+		t.insert(std::pair<std::vector<attr*>, std::vector<attr*>>(new_keys, new_row));
+	}
+	return true;
+}
+
+bool relation::delete_from(std::vector<std::string> conjunctions){
+	std::regex reg_compare("\\s*&&\\s*");
+	std::smatch m;
+	std::vector<bool> remove;
+	for (auto conj : conjunctions){
+		std::vector<std::string> compares; 
+		while (std::regex_search(conj, m, reg_compare)){
+			compares.push_back(m.prefix().str());
+			conj = m.suffix().str();
+		}
+		compares.push_back(conj);
+		int pos = 0;
+		for (auto row: t){
+			for (unsigned int j = 0; j < compares.size(); j++){
+				if (meets_condition(compares[j], row)){
+					if (j == compares.size()-1){
+						t.erase(t.find(row.first));
+					}
+					continue;
+				}
+				break;
+			}
+			pos++;
 		}
 	}
 	return true;
 }
+
 
 bool relation::update(std::vector<std::string> attr_list, std::vector<std::string> conjunctions){
 	std::vector<std::string> comparisons;
@@ -288,6 +352,7 @@ bool relation::update(std::vector<std::string> attr_list, std::vector<std::strin
 	return true;
 }
 
+
 relation relation::projection(std::vector<std::string> attr_list){
 	std::vector<int> attrib_positions;
 	std::vector<std::string> projection_header;
@@ -307,13 +372,13 @@ relation relation::projection(std::vector<std::string> attr_list){
 		}
 	}
 
-	projection.set_header(projection_header);
+	//projection.set_header(projection_header);
 
 	//For each projected column, push the attribute at that position from original row to the new row, then add the row to the new relation's table
 	for (auto table_iter = t.begin(); table_iter != t.end(); ++table_iter){
 		relation::tuple projection_row;
 		relation::tuple keys;
-		
+
 		for (auto attrib_iter = attrib_positions.begin(); attrib_iter != attrib_positions.end(); ++attrib_iter){
 
 			if (this->is_key(*attrib_iter)) {
@@ -335,164 +400,118 @@ relation relation::projection(std::vector<std::string> attr_list){
 //handled by Oliver Hatfield
 relation relation::set_union(relation other_table){
 	/*
-	 what i'll do is check to make sure that they have the same number of columns (header.size() is the same) and make sure that the columns match up as well (as in they have the same title for each, suggesting the same domain), and if so, lump them together.
-	 
+	what i'll do is check to make sure that they have the same number of columns (header.size() is the same) and make sure that the columns match up as well (as in they have the same title for each, suggesting the same domain), and if so, lump them together.
+
 	what should i do about potential duplicates?
-	 */
-	
+	*/
+
 	relation temp;
-	
-	if(header.size() != other_table.get_header().size()) {
+
+	if (header.size() != other_table.header.size()) {
 		return temp;
 	}
-	
+
 	std::vector<std::string>::iterator it1 = header.begin();
-	std::vector<std::string>::iterator it2 = other_table.get_header().begin();
-	
-	while (it1 != header.end() || it2 != other_table.get_header().end()) {
-		
+	std::vector<std::string>::iterator it2 = other_table.header.begin();
+
+	while (it1 != header.end() || it2 != other_table.header.end()) {
+
 		std::string temp1 = *it1;
 		std::string temp2 = *it2;
-		if(temp1.substr(0,1) == "%") {
-			temp1 =(*it1).substr(1,(*it1).length());
+		if (temp1.substr(0, 1) == "%") {
+			temp1 = (*it1).substr(1, (*it1).length());
 		}
-		if(temp2.substr(0,1) == "%") {
-			temp2 =(*it2).substr(1,(*it2).length());
+		if (temp2.substr(0, 1) == "%") {
+			temp2 = (*it2).substr(1, (*it2).length());
 		}
-		
-		if(temp1 != temp2) {
+
+		if (temp1 != temp2) {
 			return temp;
 		}
-		
+
 		++it1;
 		++it2;
 	}
-	
+
 	//cleared, they should be union-compatible.
-	
+
 	//can find tuple or count > 0, then don't add in.
-	
+
 	table::iterator other_it = other_table.get_table().begin();
-	
-	while(other_it != other_table.get_table().end()) {
-		
-		if(t.count(other_it->first) > 0) {	//means it's a duplicate entry, since keys are unique
+
+	while (other_it != other_table.get_table().end()) {
+
+		if (t.count(other_it->first) > 0) {	//means it's a duplicate entry, since keys are unique
 			//do nothing (should i change this control statement?
 		}
 		else {
 			temp.get_table().insert(other_it->first, other_it->second);
 		}
-		
+
 		++other_it;
 	}
- 	
-	return temp;
-}
-relation relation::set_difference(relation other_table){
-	return relation(); //placeholder
-}
 
-//handled by Oliver Hatfield
-relation relation::renaming(std::vector<std::string> attr_list) {
-	/*
-	 i'd like to have some way to know where these new titles go.
-	 pass a vector of indices (ints) along with attr_list?
-	 do i just assume that it passes a new name for EVERY attr_name??
-	 
-	 need to create NEW relation, based on what is called here.
-	 */
-	
-	
-	//INCOMPLETE!!! waiting on finished constructor.
-	//also, would this code work?
-	
-	std::vector<std::string> new_keys;
-	for(std::vector<std::string>::iterator it = header.begin(); it != header.end(); ++it) {
-		if((*it).substr(0,1) == "%") {
-			std::string temp =(*it).substr(1,(*it).length());
-			new_keys.push_back(temp);
-		}
-	}
-	
-	relation temp(this->get_name(), new_keys, attr_list);
-	temp.insert_into(*this);	//place all tuples from this relation into temp relation
-	
 	return temp;
 }
 
-//handled by Oliver Hatfield
-relation relation::cross_product(relation other_table) {
-/*
-	std::vector<std::string> new_keys;
-	for(std::vector<std::string>::iterator it = header.begin(); it != header.end(); ++it) {
-		if((*it).substr(0,1) == "%") {
-			std::string temp =(*it).substr(1,(*it).length());
-			new_keys.push_back(temp);
+relation* relation::cross_product(relation other_table) {;
+	std::vector<std::string> new_key_header;
+	std::vector<std::string> new_attr_header;
+	std::vector<std::string> other_header = other_table.header;
+
+	for (std::vector<std::string>::iterator it1 = header.begin(); it1 != header.end(); ++it1) {
+		if ((*it1)[0] == '%'){
+			std::string temp = it1->substr(1, it1->size() -1);
+			new_attr_header.push_back(temp + "INTEGER");
+			new_key_header.push_back(temp);
+		}
+		else{
+			std::string temp = *it1;
+			new_attr_header.push_back(temp + "INTEGER");
 		}
 	}
-*/
-	
-	//HOW DEFINE KEYS??? :/ i guess just use keys from the calling table, and push back the other parts into its values.
-	
-	std::vector<std::string> new_header;
-	for(std::vector<std::string>::iterator it1 = header.begin(); it1 != header.end(); ++it1) {
-		new_header.push_back(*it1);
-	}
-	for(std::vector<std::string>::iterator it2 = other_table.get_header().begin(); it2 != other_table.get_header().end(); ++it2) {
-		if((*it2).substr(0,1) == "%") {
-			std::string temp =(*it2).substr(1,(*it2).length());	//remove keys from table 2 headers
-			new_header.push_back(temp);
+	for (std::vector<std::string>::iterator it2 = other_header.begin(); it2 != other_header.end(); ++it2) {
+		if ((*it2)[0] == '%'){
+			std::string temp = it2->substr(1, it2->size() - 1);
+			new_attr_header.push_back(temp + "INTEGER");
+			new_key_header.push_back(temp);
 		}
-		else {
-			new_header.push_back(*it2);
+		else{
+			std::string temp = *it2;
+			new_attr_header.push_back(temp + "INTEGER");
 		}
 	}
-	
-	std::vector<std::string> empty_keys;	//this shouldn't be a problem...?
-	relation temp("Cross product", empty_keys, new_header);
-	
-	
-	std::map<tuple, tuple> new_values;
-	std::map<tuple,tuple>::iterator map_traverse = t.begin();
-	while(map_traverse != t.end()) {
-		std::map<tuple,tuple>::iterator other_trav = other_table.get_table().begin();
-		while(other_trav != other_table.get_table().end()) {
-			tuple temp;
-			
-			for(tuple::iterator t_iter = map_traverse->second.begin(); t_iter != map_traverse->second.end(); ++t_iter) {
-				temp.push_back(*t_iter);
+
+	relation* new_relation = new relation("", new_key_header, new_attr_header);
+
+	for (auto row1 : t){
+		tuple attr1 = row1.second;
+		for (auto row2 : other_table.t){
+			tuple new_key;
+			tuple new_attr;
+			tuple attr2 = row2.second;
+			for (unsigned int k = 0; k < attr1.size(); k++){
+				attr* new_a;
+				if (attr1[k]->get_class() == attr::attr_type::INTEGER)
+					new_a = new integer(*dynamic_cast<integer*>(attr1[k]));
+				else
+					new_a = new var_char(*dynamic_cast<var_char*>(attr1[k]));
+				new_attr.push_back(new_a);
+				if (is_key(k))
+					new_key.push_back(new_a);
 			}
-			for(tuple::iterator t_iter = other_trav->first.begin(); t_iter != other_trav->first.end(); ++t_iter) {	//how do i fix this problem?
-				temp.push_back(*t_iter);
+			for (unsigned int k = 0; k < attr2.size(); k++){
+				attr* new_a;
+				if (attr2[k]->get_class() == attr::attr_type::INTEGER)
+					new_a = new integer(*dynamic_cast<integer*>(attr2[k]));
+				else
+					new_a = new var_char(*dynamic_cast<var_char*>(attr2[k]));
+				new_attr.push_back(new_a);
+				if (other_table.is_key(k))
+					new_key.push_back(new_a);
 			}
-			for(tuple::iterator t_iter = other_trav->second.begin(); t_iter != other_trav->second.end(); ++t_iter) {
-				temp.push_back(*t_iter);
-			}
-			
-			
-			new_values.insert(map_traverse->first, temp);
-			++other_trav;	//and apparently these iterators don't work.
+			new_relation->insert(std::pair<tuple, tuple>(new_key, new_attr));
 		}
-		
-		
-		++map_traverse;	//and apparently these iterators don't work.
 	}
-	
-	
-	temp.t = new_values;	//will this work? copy constructor?
-	
-	/*
-	 how do i dig out the individual tuples from other_table? i need to be able to work with those...
-	 i need map access.
-	 
-	 concatenate the two headers, making the new relation doubly-wide
-	 
-	 
-	 
-	 */
-	
-	//INCOMPLETE
-	//NEED map accessor for other_table.
-	
-	return temp;
+	return new_relation;
 }
