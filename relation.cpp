@@ -332,8 +332,61 @@ relation relation::projection(std::vector<std::string> attr_list){
 	return projection;
 }
 
+//handled by Oliver Hatfield
 relation relation::set_union(relation other_table){
-	return relation(); //placeholder
+	/*
+	 what i'll do is check to make sure that they have the same number of columns (header.size() is the same) and make sure that the columns match up as well (as in they have the same title for each, suggesting the same domain), and if so, lump them together.
+	 
+	what should i do about potential duplicates?
+	 */
+	
+	relation temp;
+	
+	if(header.size() != other_table.get_header().size()) {
+		return temp;
+	}
+	
+	std::vector<std::string>::iterator it1 = header.begin();
+	std::vector<std::string>::iterator it2 = other_table.get_header().begin();
+	
+	while (it1 != header.end() || it2 != other_table.get_header().end()) {
+		
+		std::string temp1 = *it1;
+		std::string temp2 = *it2;
+		if(temp1.substr(0,1) == "%") {
+			temp1 =(*it1).substr(1,(*it1).length());
+		}
+		if(temp2.substr(0,1) == "%") {
+			temp2 =(*it2).substr(1,(*it2).length());
+		}
+		
+		if(temp1 != temp2) {
+			return temp;
+		}
+		
+		++it1;
+		++it2;
+	}
+	
+	//cleared, they should be union-compatible.
+	
+	//can find tuple or count > 0, then don't add in.
+	
+	table::iterator other_it = other_table.get_table().begin();
+	
+	while(other_it != other_table.get_table().end()) {
+		
+		if(t.count(other_it->first) > 0) {	//means it's a duplicate entry, since keys are unique
+			//do nothing (should i change this control statement?
+		}
+		else {
+			temp.get_table().insert(other_it->first, other_it->second);
+		}
+		
+		++other_it;
+	}
+ 	
+	return temp;
 }
 relation relation::set_difference(relation other_table){
 	return relation(); //placeholder
