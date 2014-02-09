@@ -116,3 +116,27 @@ void relation::save(){
 void relation::show(){
   //add function to show table
 }
+
+relation relation::selection(std::vector<std::string> conjunctions) {
+    create temporary object of string type
+    
+    //Grammar split_condition, 
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
