@@ -48,7 +48,7 @@ public:
   relation selection(std::vector<std::string> conjunctions);
   relation* projection(std::vector<std::string> attr_list);
   relation renaming(std::vector<std::string> attr_list);
-  relation set_union(relation other_table);
+  relation* set_union(relation other_table);
   relation set_difference(relation other_table);
   relation* cross_product(relation other_table);
   relation natural_join(relation other_table);

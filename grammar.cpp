@@ -308,14 +308,9 @@ relation& grammar::expr(std::string input, std::vector<relation>& tables){
 	std::printf("Unable to discern rename arguments\n");
   }
   if (std::regex_search(input, m, reg_union)){
-	std::printf("case: %s\n", "union");
-	std::string atomic1_str = m.prefix().str();
-	std::string atomic2_str = m.suffix().str();
-	std::printf("atomic1: %s\natomic2: %s\n", atomic1_str.c_str(), atomic2_str.c_str());
-	relation atomic1 = atomic_expr(atomic1_str, tables);
-	relation atomic2 = atomic_expr(atomic2_str, tables);
+	relation atomic1 = atomic_expr(m.prefix().str(), tables);
+	relation atomic2 = atomic_expr(m.suffix().str(), tables);
 	return table_union(atomic1, atomic2);
-	//combine string declaration and relation declaration
   }
   if (std::regex_search(input, m, reg_difference)){
 	std::printf("case: %s\n", "difference");
@@ -389,8 +384,7 @@ relation& grammar::renaming(std::string attr_list, relation& table){
 }
 
 relation& grammar::table_union(relation& table1, relation& table2){
-  //add function for a table to do a union
-  return relation();
+  return *(table1.set_union(table2));
 }
 
 relation& grammar::difference(relation& table1, relation& table2){

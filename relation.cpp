@@ -376,60 +376,39 @@ relation* relation::projection(std::vector<std::string> attr_list){
 }
 
 //handled by Oliver Hatfield
-relation relation::set_union(relation other_table){
-	/*
-	what i'll do is check to make sure that they have the same number of columns (header.size() is the same) and make sure that the columns match up as well (as in they have the same title for each, suggesting the same domain), and if so, lump them together.
-
-	what should i do about potential duplicates?
-	*/
-	
-	relation temp;
-
+relation* relation::set_union(relation other_table){
 	if (header.size() != other_table.header.size()) {
-		return temp;
+		return new relation();
 	}
-
 	std::vector<std::string>::iterator it1 = header.begin();
 	std::vector<std::string>::iterator it2 = other_table.header.begin();
-
-	while (it1 != header.end() || it2 != other_table.header.end()) {
-
+	std::vector <std::string> new_key_header;
+	std::vector<std::string> new_attr_header;
+	while (it1 != header.end()) {
 		std::string temp1 = *it1;
 		std::string temp2 = *it2;
+		bool is_k = false;
 		if (temp1.substr(0, 1) == "%") {
-			temp1 = (*it1).substr(1, (*it1).length());
+			temp1 = temp1.substr(1, temp1.length()-1);
+			is_k = true;
 		}
 		if (temp2.substr(0, 1) == "%") {
-			temp2 = (*it2).substr(1, (*it2).length());
+			temp2 = temp2.substr(1, temp2.length()-1);
+			is_k = true;
 		}
-
 		if (temp1 != temp2) {
-			return temp;
+			return new relation();
 		}
-
+		new_attr_header.push_back(temp1 + " INTEGER");
+		if (is_k)
+			new_key_header.push_back(temp1);
 		++it1;
 		++it2;
 	}
-
-	//cleared, they should be union-compatible.
-
-	//can find tuple or count > 0, then don't add in.
-
-	table::iterator other_it = other_table.get_table().begin();
-
-	while (other_it != other_table.get_table().end()) {
-
-		if (t.count(other_it->first) > 0) {	//means it's a duplicate entry, since keys are unique
-			//do nothing (should i change this control statement?
-		}
-		else {
-			temp.get_table().insert(other_it->first, other_it->second);
-		}
-
-		++other_it;
-	}
-
-	return temp;
+	relation* new_relation = new relation("", new_key_header, new_attr_header);
+	new_relation->insert_into(*this);
+	new_relation->insert_into(other_table);
+	return new_relation;
 }
 
 relation* relation::cross_product(relation other_table) {;
