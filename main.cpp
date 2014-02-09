@@ -15,7 +15,7 @@ int main(){
 
   grammar::program("UPDATE animals SET kind = \"bat\" WHERE years <= 5;", table);
 
-  //::program("SHOW animals;", table);
+  grammar::program("SHOW animals;", table);
 
   //grammar::program("CREATE TABLE species (kind VARCHAR(10)) PRIMARY KEY (kind);", table);
 
