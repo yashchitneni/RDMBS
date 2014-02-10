@@ -2,6 +2,7 @@
 #define _ATTR
 
 #include <string>
+#include <cstdlib>
 
 class attr{
   int i_value;

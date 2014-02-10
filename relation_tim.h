@@ -6,6 +6,7 @@
 #include <array>
 #include <vector>
 #include <regex>
+//#include <iostream>
 
 
 struct less_attr_pt{
@@ -14,7 +15,7 @@ struct less_attr_pt{
 
 class relation{
   typedef std::vector<attr*> tuple;
-	typedef std::map<tuple, tuple, less_attr_pt> table;
+	typedef std::map<tuple, tuple, less_attr_pt> table;		//primary keys are repeated in second
 
   int n_keys;
   int n_attr;
@@ -23,8 +24,11 @@ class relation{
   table t;
 
   bool meets_condition(std::string condition, std::pair<tuple, tuple> row);
+	bool meets_conjunction(std::string conjunction, std::pair<tuple, tuple> row);
   int header_pos(std::string name);
 	bool is_key(int pos);
+	static std::vector<std::string> split_condition(std::string condition);
+	static std::vector<std::string> split_conjunction(std::string conjunction);
 
 	friend class relation;
 	friend class grammar;
@@ -32,7 +36,7 @@ class relation{
 public:
   relation() : n_keys(0), n_attr(0), table_name(""){}
   relation(std::string name, std::vector<std::string> key_header, std::vector<std::string> attr_header);
-    relation(const relation& other_table);
+	relation(const relation& other_table);
   ~relation();
 
   void set_name(std::string name);

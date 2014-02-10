@@ -234,7 +234,7 @@ void grammar::update_cmd(std::string table_name, std::string attrs, std::string 
   if (pos == -1) return;
   relation* table = &tables[pos];
   std::vector<std::string> attr_list = split_attr(attrs);
-  std::vector<std::string> conjunctions = split_condition(conditions);
+  std::vector<std::string> conjunctions = relation::split_condition(conditions);
   table->update(attr_list, conjunctions);
 }
 
@@ -248,7 +248,7 @@ void grammar::insert_cmd(relation& table, std::string literals){
 }
 
 void grammar::delete_cmd(relation& table, std::string condition){
-  std::vector<std::string> conjunctions = split_condition(condition);
+  std::vector<std::string> conjunctions = relation::split_condition(condition);
   table.delete_from(conjunctions);
 }
 
@@ -296,26 +296,19 @@ relation& grammar::expr(std::string input, std::vector<relation>& tables){
 	std::printf("Unable to discern project arguments\n");
   }
   if (std::regex_search(input, m, reg_renaming)){
-	std::printf("case: %s\n", "renaming");
 	std::string arg = m.suffix().str();
 	std::regex reg_attr("\\(\\s*[_[:alpha:]][_\\w]*\\s*(,\\s*[_[:alpha:]][_\\w]*\\s*)*\\)");
 	if (std::regex_search(arg, m, reg_attr)){
-	  std::string attr_list = m.str().substr(1, m.str().size() - 2);
-	  std::printf("attribute list: %s\natomic: %s\n", attr_list.c_str(), m.suffix().str().c_str());
+	  std::string attr_list = m.str().substr(1, m.str().size() - 2);\
 	  relation atomic = atomic_expr(m.suffix().str(), tables);
 		return renaming(attr_list, atomic);
 	}
 	std::printf("Unable to discern rename arguments\n");
   }
   if (std::regex_search(input, m, reg_union)){
-	std::printf("case: %s\n", "union");
-	std::string atomic1_str = m.prefix().str();
-	std::string atomic2_str = m.suffix().str();
-	std::printf("atomic1: %s\natomic2: %s\n", atomic1_str.c_str(), atomic2_str.c_str());
-	relation atomic1 = atomic_expr(atomic1_str, tables);
-	relation atomic2 = atomic_expr(atomic2_str, tables);
+	relation atomic1 = atomic_expr(m.prefix().str(), tables);
+	relation atomic2 = atomic_expr(m.suffix().str(), tables);
 	return table_union(atomic1, atomic2);
-	//combine string declaration and relation declaration
   }
   if (std::regex_search(input, m, reg_difference)){
 	std::printf("case: %s\n", "difference");
@@ -372,7 +365,7 @@ int grammar::find_relation(std::string input, std::vector<relation>& tables){
 }
 
 relation& grammar::selection(std::string condition, relation& table){
-  std::vector<std::string> conjunctions = split_condition(condition);
+  std::vector<std::string> conjunctions = relation::split_condition(condition);
 	//add function for a table to remove rows that dont meet a vector of conjuctions
 	return *(new relation());
 }
@@ -384,18 +377,17 @@ relation& grammar::projection(std::string attr_list, relation& table){
 
 relation& grammar::renaming(std::string attr_list, relation& table){
   std::vector<std::string> attr_names = split_attr(attr_list);
-  //add function for a table to rename the columns
-  return relation();
+	return *(table.renaming(attr_names));
 }
 
 relation& grammar::table_union(relation& table1, relation& table2){
-  //add function for a table to do a union
-  return relation();
+  return *(table1.set_union(table2));
 }
 
 relation& grammar::difference(relation& table1, relation& table2){
   //add function for a table to do a difference
-  return relation();
+	relation* temp = new relation();
+  return *temp;
 }
 
 relation& grammar::product(relation& table1, relation& table2){
@@ -404,7 +396,8 @@ relation& grammar::product(relation& table1, relation& table2){
 
 relation& grammar::natural_join(relation& table1, relation& table2){
   //add function for a table to do a natural_join
-  return relation();
+	relation* temp = new relation();
+	return *temp;
 }
 
 std::vector<std::string> grammar::split_attr(std::string attr_list){
@@ -418,17 +411,4 @@ std::vector<std::string> grammar::split_attr(std::string attr_list){
   }
   attr_names.push_back(attr_list);
   return attr_names;
-}
-
-std::vector<std::string> grammar::split_condition(std::string condition){
-  std::vector<std::string> conjunctions;
-  std::regex reg_conj("\\s*\\|\\|\\s*");
-  std::smatch m;
-  while (std::regex_search(condition, m, reg_conj)){
-	std::string conj = m.prefix().str();
-	conjunctions.push_back(conj);
-	condition = m.suffix().str();
-  }
-  conjunctions.push_back(condition);
-  return conjunctions;
 }
