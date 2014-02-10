@@ -14,6 +14,7 @@ public:
   static void program(std::string input, std::vector<relation>& tables);
   static void program(std::vector<relation>& tables);
 private:
+	friend class relation;
   /*
   Command function that takes input and decides which command should be executed
   */
@@ -44,7 +45,6 @@ private:
   static relation& natural_join(relation& table1, relation& table2);
 
   static std::vector<std::string> split_attr(std::string attrs);
-  static std::vector<std::string> split_condition(std::string condition);
 };
 
 #endif

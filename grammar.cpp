@@ -234,7 +234,7 @@ void grammar::update_cmd(std::string table_name, std::string attrs, std::string 
   if (pos == -1) return;
   relation* table = &tables[pos];
   std::vector<std::string> attr_list = split_attr(attrs);
-  std::vector<std::string> conjunctions = split_condition(conditions);
+  std::vector<std::string> conjunctions = relation::split_condition(conditions);
   table->update(attr_list, conjunctions);
 }
 
@@ -248,7 +248,7 @@ void grammar::insert_cmd(relation& table, std::string literals){
 }
 
 void grammar::delete_cmd(relation& table, std::string condition){
-  std::vector<std::string> conjunctions = split_condition(condition);
+  std::vector<std::string> conjunctions = relation::split_condition(condition);
   table.delete_from(conjunctions);
 }
 
@@ -365,7 +365,7 @@ int grammar::find_relation(std::string input, std::vector<relation>& tables){
 }
 
 relation& grammar::selection(std::string condition, relation& table){
-  std::vector<std::string> conjunctions = split_condition(condition);
+  std::vector<std::string> conjunctions = relation::split_condition(condition);
 	//add function for a table to remove rows that dont meet a vector of conjuctions
 	return *(new relation());
 }
@@ -409,17 +409,4 @@ std::vector<std::string> grammar::split_attr(std::string attr_list){
   }
   attr_names.push_back(attr_list);
   return attr_names;
-}
-
-std::vector<std::string> grammar::split_condition(std::string condition){
-  std::vector<std::string> conjunctions;
-  std::regex reg_conj("\\s*\\|\\|\\s*");
-  std::smatch m;
-  while (std::regex_search(condition, m, reg_conj)){
-	std::string conj = m.prefix().str();
-	conjunctions.push_back(conj);
-	condition = m.suffix().str();
-  }
-  conjunctions.push_back(condition);
-  return conjunctions;
 }
