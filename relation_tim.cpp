@@ -1,5 +1,8 @@
 #include "relation_tim.h"
 
+//HEY YOU GUYYYYYYYS
+
+
 bool less_attr_pt::operator() (std::vector<attr*> lhs, std::vector<attr*> rhs) const {
 	for (unsigned int k = 0; k < lhs.size() && k < rhs.size(); k++){
 		if (*(lhs[k]) < *(rhs[k]))
