@@ -1,7 +1,7 @@
 #ifndef _GRAMMAR
 #define _GRAMMAR
 
-#include "relation_tim.h"
+#include "relation.h"
 #include <regex>
 #include <fstream>
 

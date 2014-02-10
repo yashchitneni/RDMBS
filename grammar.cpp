@@ -208,8 +208,8 @@ void grammar::open_cmd(std::string input, std::vector<relation>& tables){
 void grammar::close_cmd(std::string input, std::vector<relation>& tables){
   int pos = find_relation(input, tables);
   if (pos != -1){
-	relation* table = &tables[pos];
-	table->save();
+	relation table = tables[pos];
+	table.save();
 	tables.erase(tables.begin() + pos);
   }
 }
@@ -274,12 +274,10 @@ relation& grammar::expr(std::string input, std::vector<relation>& tables){
   std::regex reg_natural_join("JOIN\\s*");
   std::smatch m;
   if (std::regex_search(input, m, reg_select)){
-	std::printf("case: %s\n", "selection");
 	std::string arg = m.suffix().str();
 	std::regex reg_cond("(?:\\(\\s*)([\\s\\w&\\|!=<>\"]+)(?:\\s*\\))");
 	if (std::regex_search(arg, m, reg_cond)){
 	  std::string condition = m[1].str();
-	  std::printf("condition: %s\natomic: %s\n", condition.c_str(), m.suffix().str().c_str());
 	  relation atomic = atomic_expr(m.suffix().str(), tables);
 	  return selection(condition, atomic);
 	}
@@ -326,14 +324,9 @@ relation& grammar::expr(std::string input, std::vector<relation>& tables){
 	return product(atomic1, atomic2);
   }
   if (std::regex_search(input, m, reg_natural_join)){
-	std::printf("case: %s\n", "natural-join");
-	std::string atomic1_str = m.prefix().str();
-	std::string atomic2_str = m.suffix().str();
-	std::printf("atomic1: %s\natomic2: %s\n", atomic1_str.c_str(), atomic2_str.c_str());
-	relation atomic1 = atomic_expr(atomic1_str, tables);
-	relation atomic2 = atomic_expr(atomic2_str, tables);
+	relation atomic1 = atomic_expr(m.prefix().str(), tables);
+	relation atomic2 = atomic_expr(m.suffix().str(), tables);
 	return natural_join(atomic1, atomic2);
-	//combine string declaration and relation declaration
   }
   return atomic_expr(input, tables);
 }
@@ -366,8 +359,7 @@ int grammar::find_relation(std::string input, std::vector<relation>& tables){
 
 relation& grammar::selection(std::string condition, relation& table){
   std::vector<std::string> conjunctions = relation::split_condition(condition);
-	//add function for a table to remove rows that dont meet a vector of conjuctions
-	return *(new relation());
+	return *(table.selection(conjunctions));
 }
 
 relation& grammar::projection(std::string attr_list, relation& table){
@@ -386,8 +378,7 @@ relation& grammar::table_union(relation& table1, relation& table2){
 
 relation& grammar::difference(relation& table1, relation& table2){
   //add function for a table to do a difference
-	relation* temp = new relation();
-  return *temp;
+  return relation();
 }
 
 relation& grammar::product(relation& table1, relation& table2){
@@ -395,9 +386,7 @@ relation& grammar::product(relation& table1, relation& table2){
 }
 
 relation& grammar::natural_join(relation& table1, relation& table2){
-  //add function for a table to do a natural_join
-	relation* temp = new relation();
-	return *temp;
+	return *(table1.natural_join(table2));
 }
 
 std::vector<std::string> grammar::split_attr(std::string attr_list){
