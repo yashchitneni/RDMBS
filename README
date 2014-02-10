@@ -1,0 +1,57 @@
+/*
+*    GIT Repository for CSCE 315 Project 1 - RDBMS
+*    "Futból Tracker"
+*
+*    Yash Chitneni
+*    John Goen
+*    Oliver Hatfield
+*    Tim Hopper
+*
+*    Copyright 2014
+*/
+
+Consists of three parts:
+    DBMS ENGINE
+    PARSER
+    DB APPLICATION ("Futbol Tracker")
+    
+Due dates:
+    2                        Mon 2/10 11:50 pm
+        DBMS ENGINE
+    3                        Mon 2/17 11:50 pm
+        ENGINE + PARSER
+    4                        Mon 2/24 11:50 pm
+        DB APPLICATION
+
+Current responsibilities:
+    2
+        John        UPDATE
+        Oliver      ???
+        Tim         finish grammar
+                    comment up header files
+        Yash        SELECTION
+        
+        ALL         try to implement create and access tables
+        
+Project notes:
+    2
+        Implement
+            CREATE TABLE (PRIMARY KEY)
+            DROP TABLE
+    
+            INSERT INTO 
+            UPDATE
+            DELETE FROM
+
+            SELECTION
+            PROJECTION
+            RENAMING
+            SET UNION
+            SET DIFFERENCE
+            CROSS PRODUCT
+            (NATURAL JOIN)
+
+        No I/O, no parser. Everything through function calls.
+        
+NOTE:
+    Do not use the source code files in the "root" folder; use the capitalized source code files in /RDMBS/RDBMS/RDBMS.
