@@ -334,8 +334,56 @@ bool relation::delete_from(std::vector<std::string> conjunctions){
 	return true;
 }
 
-relation* relation::selection(std::vector<std::string> conjunctions){
-	return new relation();
+relation* relation::selection(std::vector<std::string> conjunctions) {
+    
+	std::vector<std::string>::iterator it1 = header.begin();
+	std::vector<std::string> new_key_header;
+	std::vector<std::string> new_attr_header;
+    
+	while (it1 != header.end()) {
+		std::string temp1 = *it1;
+		bool is_key = false;
+		if (temp1.substr(0, 1) == "%") {
+			temp1 = temp1.substr(1, temp1.length() - 1);
+			is_key = true;
+		}
+		new_attr_header.push_back(temp1 + " INTEGER");
+		if (is_key)
+			new_key_header.push_back(temp1);
+		++it1;
+	}
+    
+	relation* new_relation = new relation("", new_key_header, new_attr_header);
+    
+	for (auto conj : conjunctions){
+		for (auto row : t){
+			tuple new_row;
+			tuple new_keys;
+            
+			if (meets_conjunction(conj, row)){
+				for (auto attrs : row.second){
+					attr* new_attr;
+					if (attrs->get_class() == attr::attr_type::INTEGER){
+						integer* temp = dynamic_cast<integer*>(attrs);
+						new_attr = new integer(*temp);
+					}
+					else{
+						var_char* temp = dynamic_cast<var_char*>(attrs);
+						new_attr = new var_char(*temp);
+					}
+					new_row.push_back(new_attr);
+				}
+				for (unsigned int k = 0; k < new_row.size(); k++){
+					if (is_key(k)){
+						new_keys.push_back(new_row[k]);
+					}
+				}
+				new_relation->insert(std::pair<std::vector<attr*>, std::vector<attr*>>(new_keys, new_row));
+			}
+		}
+	}
+	return new_relation;
+    
 }
 
 relation* relation::projection(std::vector<std::string> attr_list){
@@ -453,7 +501,40 @@ relation* relation::set_union(relation& other_table){
 }
 
 relation* relation::set_difference(relation& other_table){
-	return new relation();
+	if (header.size() != other_table.size()) {
+        return new relation();
+    }
+    
+    std::vector<std::string>::iterator it1 = header.begin();
+    std::vector<std::string>::iterator it2 = other_table.header.begin();
+    std::vector<std::string> new_key_header;
+    std::vector<std::string> new_attr_header;
+    
+    while (it1 != header.end()) {
+        std::string temp1 = *it1;
+        std::string temp2 = *it2;
+        bool is_key = false;
+        if (temp1.substr(0, 1) == "%") {
+            temp1 = temp1.substr(1, temp1.length()-1);
+            is_key = true;
+        }
+        if (temp2.substr(0, 1) == "%") {
+            temp2 = temp2.substr(1, temp2.length()-1);
+            is_key = true;
+        }
+        if (temp1 != temp2) {
+            return new relation();
+        }
+        new_attr_header.push_back(temp1 + " INTEGER");
+        if (is_key)
+            new_key_header.push_back(temp1);
+        ++it1;
+        ++it2;
+    }
+    relation* new_relation = new relation("", new_key_header, new_attr_header);
+    // REMOVE THE ONES THAT TABLE 1 HAS BUT TABLE 2 DOES NOT
+    
+    return new_relation;
 }
 
 relation* relation::cross_product(relation& other_table) {;
