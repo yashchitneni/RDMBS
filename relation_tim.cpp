@@ -1,4 +1,4 @@
-#include "relation.h"
+#include "relation_tim.h"
 
 bool less_attr_pt::operator() (std::vector<attr*> lhs, std::vector<attr*> rhs) const {
 	for (unsigned int k = 0; k < lhs.size() && k < rhs.size(); k++){
@@ -531,5 +531,178 @@ relation* relation::cross_product(relation& other_table) {;
 }
 
 relation* relation::natural_join(relation& other_table){
+	
+	/*
+	 compare NOT ONLY headers BUT ALSO attr!
+	 */
+	
+	std::map<int, int> header_matches;	//<position in this, position in other>
+	
+	
+	int pos1 = 0;
+	int pos2 = 0;
+	
+	//checking to see if any headers match, and storing the matches in header_matches
+	for(std::vector<std::string>::iterator header_check1 = header.begin(); header_check1 != header.end(); header_check1++) {
+		
+		std::string temp1 = "";
+		
+		if((*header_check1).substr(0,1) == "%") {
+			temp1 =(*header_check1).substr(1,(*header_check1).length());
+		}
+		else {
+			temp1 = *header_check1;
+		}
+		
+		for(std::vector<std::string>::iterator header_check2 = other_table.header.begin(); header_check2 != other_table.header.end(); header_check2++) {
+			std::string temp2 = "";
+			
+			if((*header_check2).substr(0,1) == "%") {
+				temp2 =(*header_check2).substr(1,(*header_check2).length());
+			}
+			else {
+				temp2 = *header_check2;
+			}
+			
+			if(temp1 == temp2) {
+				header_matches.insert(std::pair<int,int>(pos1, pos2));
+				break;
+			}
+			pos2++;
+		}
+		pos2 = 0;
+		pos1++;
+	}
+	
+	if(header_matches.size() <= 0) {
+		return cross_product(other_table);
+	}
+	
+	std::vector<std::string> new_header;
+	std::vector<std::string> new_keys;
+
+/*
+	for(auto x : header_matches) {
+		std::cout << "Header firsts: " << x.first << " and " << x.second << std::endl;
+	}
+*/
+	
+	pos1 = 0;
+	//iterate through, checking each header title for both headers
+	for(std::vector<std::string>::iterator header_check1 = header.begin(); header_check1 != header.end(); header_check1++) {
+		
+//		std::cout << "Header check: " << *header_check1 << std::endl;
+		if(header_matches.find(pos1) == header_matches.end()) {
+			
+			
+			if((*header_check1).substr(0,1) == "%") {
+				std::string temp1 =(*header_check1).substr(1,(*header_check1).length());
+				new_keys.push_back(temp1);
+				new_header.push_back(temp1 + " INTEGER");
+			}
+			else {
+				new_header.push_back(*header_check1 + " INTEGER");
+			}
+		}
+	
+		pos1++;
+	}
+	
+	pos2 = 0;
+	for(std::vector<std::string>::iterator header_check2 = other_table.header.begin(); header_check2 != other_table.header.end(); header_check2++) {
+		
+		if(other_table.is_key(pos2)) {
+			std::string temp =(*header_check2).substr(1,(*header_check2).length());
+			new_keys.push_back(temp);
+			new_header.push_back(temp + " INTEGER");
+		}
+		else {
+			new_header.push_back(*header_check2 + " INTEGER");
+		}
+		
+		pos2++;
+	}
+	
+	relation* new_relation = new relation("", new_keys, new_header);
+/*
+	new_relation->show();
+	for(auto x : new_keys) {
+		std::cout << x << std::endl;
+	}
+	std::cout << std::endl;
+	for(auto x : new_header) {
+		std::cout << x << std::endl;
+	}
+*/
+	
+	
+	
+	
+	
+	
+	/*
+	 relation relation::cross_product(relation other_table) {
+	 -	relation temp;
+	 +
+	 +	std::vector<std::string> new_keys;
+	 +	for(std::vector<std::string>::iterator it = header.begin(); it != header.end(); ++it) {
+	 +		if((*it).substr(0,1) == "%") {
+	 +			std::string temp =(*it).substr(1,(*it).length());
+	 +			new_keys.push_back(temp);
+	 +		}
+	 +	}
+	 +
+	+
+	+	//HOW DEFINE KEYS??? :/ i guess just use keys from the calling table, and push back the other parts into its values.
+	+
+	+	std::vector<std::string> new_header;
+	+	for(std::vector<std::string>::iterator it1 = header.begin(); it1 != header.end(); ++it1) {
+		+		new_header.push_back(*it1);
+		+	}
+	+	for(std::vector<std::string>::iterator it2 = other_table.get_header().begin(); it2 != other_table.get_header().end(); ++it2) {
+		+		if((*it2).substr(0,1) == "%") {
+			+			std::string temp =(*it2).substr(1,(*it2).length());	//remove keys from table 2 headers
+			+			new_header.push_back(temp);
+			+		}
+		+		else {
+			+			new_header.push_back(*it2);
+			+		}
+		+	}
+	+
+	+	std::vector<std::string> empty_keys;	//this shouldn't be a problem...?
+	+	relation temp("Cross product", empty_keys, new_header);
+	+
+	+
+	+	std::map<tuple, tuple> new_values;
+	+	std::map<tuple,tuple>::iterator map_traverse = t.begin();
+	+	while(map_traverse != t.end()) {
+		+		std::map<tuple,tuple>::iterator other_trav = other_table.get_table().begin();
+		+		while(other_trav != other_table.get_table().end()) {
+			+			tuple temp;
+			+
+			+			for(tuple::iterator t_iter = map_traverse->second.begin(); t_iter != map_traverse->second.end(); ++t_iter) {
+				+				temp.push_back(*t_iter);
+				+			}
+			+			for(tuple::iterator t_iter = other_trav->first.begin(); t_iter != other_trav->first.end(); ++t_iter) {	//how do i fix this problem?
+				+				temp.push_back(*t_iter);
+				+			}
+			+			for(tuple::iterator t_iter = other_trav->second.begin(); t_iter != other_trav->second.end(); ++t_iter) {
+				+				temp.push_back(*t_iter);
+				+			}
+			+
+			+
+			+			new_values.insert(map_traverse->first, temp);
+			+			++other_trav;	//and apparently these iterators don't work.
+			+		}
+		+
+		+
+		+		++map_traverse;	//and apparently these iterators don't work.
+		+	}
+  	
+  	
+	+	temp.t = new_values;
+	 */
+	
+	
 	return new relation();
 }

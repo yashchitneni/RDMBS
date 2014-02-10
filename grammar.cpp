@@ -386,7 +386,8 @@ relation& grammar::table_union(relation& table1, relation& table2){
 
 relation& grammar::difference(relation& table1, relation& table2){
   //add function for a table to do a difference
-  return relation();
+	relation* temp = new relation();
+  return *temp;
 }
 
 relation& grammar::product(relation& table1, relation& table2){
@@ -395,7 +396,8 @@ relation& grammar::product(relation& table1, relation& table2){
 
 relation& grammar::natural_join(relation& table1, relation& table2){
   //add function for a table to do a natural_join
-  return relation();
+	relation* temp = new relation();
+	return *temp;
 }
 
 std::vector<std::string> grammar::split_attr(std::string attr_list){

@@ -6,6 +6,7 @@
 #include <array>
 #include <vector>
 #include <regex>
+//#include <iostream>
 
 
 struct less_attr_pt{
@@ -14,7 +15,7 @@ struct less_attr_pt{
 
 class relation{
   typedef std::vector<attr*> tuple;
-	typedef std::map<tuple, tuple, less_attr_pt> table;
+	typedef std::map<tuple, tuple, less_attr_pt> table;		//primary keys are repeated in second
 
   int n_keys;
   int n_attr;
