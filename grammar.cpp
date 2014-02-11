@@ -377,8 +377,7 @@ relation& grammar::table_union(relation& table1, relation& table2){
 }
 
 relation& grammar::difference(relation& table1, relation& table2){
-  //add function for a table to do a difference
-  return relation();
+  return *(table1.set_difference(table2));
 }
 
 relation& grammar::product(relation& table1, relation& table2){
