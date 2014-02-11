@@ -4,6 +4,6 @@ database::database(){
 
 }
 
-bool database::command(std::string input){
-  return true;
+void database::execute(std::string input){
+	grammar::program(input, tables);
 }
