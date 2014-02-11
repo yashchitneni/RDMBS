@@ -388,15 +388,13 @@ relation* relation::selection(std::vector<std::string> conjunctions){
 			new_key_header.push_back(temp1);
 		++it1;
 	}
-    
 	relation* new_relation = new relation("", new_key_header, new_attr_header);
-    
 	for (auto conj : conjunctions){
 		for (auto row : t){
 			tuple new_row;
 			tuple new_keys;
-            
 			if (meets_conjunction(conj, row)){
+                int pos = 0;
 				for (auto attrs : row.second){
 					attr* new_attr;
 					if (attrs->get_class() == attr::attr_type::INTEGER){
@@ -408,18 +406,16 @@ relation* relation::selection(std::vector<std::string> conjunctions){
 						new_attr = new var_char(*temp);
 					}
 					new_row.push_back(new_attr);
-				}
-				for (unsigned int k = 0; k < new_row.size(); k++){
-					if (is_key(k)){
-						new_keys.push_back(new_row[k]);
+                    if (is_key(pos)){
+						new_keys.push_back(new_row[pos]);
 					}
+                    pos++;
 				}
 				new_relation->insert(std::pair<std::vector<attr*>, std::vector<attr*>>(new_keys, new_row));
 			}
 		}
 	}
 	return new_relation;
-    
 }
 
 relation* relation::projection(std::vector<std::string> attr_list){
@@ -547,8 +543,39 @@ relation* relation::set_difference(relation& other_table){
         ++it2;
     }
     relation* new_relation = new relation("", new_key_header, new_attr_header);
-    // REMOVE THE ONES THAT TABLE 1 HAS BUT TABLE 2 DOES NOT
     
+    for (auto row : t) {
+        tuple new_row;
+        tuple new_keys;
+        bool match_rows = true;
+        for (auto row_other: other_table.t) {
+            for (int i = 0 ; i < row.second.size(); i++) {
+                if (*(row.second[i]) == *(row_other.second[i])) {
+                    continue;
+                }
+                match_rows = false;
+                break;
+            }
+        }
+        if (!match_rows) {
+            for (int k = 0; k < row.second.size(); k++) {
+                attr* new_attr;
+                if (row.second[k]->get_class() == attr::attr_type::INTEGER) {
+                    integer* temp = dynamic_cast<integer*>(row.second[k]);
+                    new_attr = new integer(*temp);
+                }
+                else {
+                    var_char* temp = dynamic_cast<var_char*>(row.second[k]);
+                    new_attr = new var_char(*temp);
+                }
+                new_row.push_back(new_attr);
+                if (is_key(k)){
+                    new_keys.push_back(new_row[k]);
+                }
+            }
+            new_relation->insert(std::pair<tuple, tuple>(new_keys, new_row));
+        }
+    }
     return new_relation;
 }
 
