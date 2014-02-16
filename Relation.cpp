@@ -377,8 +377,26 @@ bool Relation::operator== (const Relation& rhs) const{
 	if (this->get_header() != rhs.get_header()){
 		return false;
 	}
-	else if (this->get_table() != rhs.get_table()){
-		return false;
+	else{
+		int lhs_index = 0;
+		for (auto lhs_row : this->get_table()){
+			
+			int rhs_index = 0;
+			for (auto rhs_row : rhs.get_table()){
+				
+				if (lhs_index == rhs_index){
+					
+					for (int attr_index = 0; attr_index < lhs_row.second.size(); ++attr_index){
+						
+						if (lhs_row.second.at(attr_index)->get_value() != rhs_row.second.at(attr_index)->get_value()){
+							return false;
+						}
+					}
+				}
+				++rhs_index;
+			}
+			++lhs_index;
+		}
 	}
 	return true;
 }
