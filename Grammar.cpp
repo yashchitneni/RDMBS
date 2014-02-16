@@ -252,7 +252,7 @@ void Grammar::close_cmd(
 	int pos = find_relation(input, tables);
 
 	if (pos != -1){
-		Relation table = tables[pos];
+		Relation& table = tables[pos];
 
 		table.save();
 		tables.erase(tables.begin() + pos);
