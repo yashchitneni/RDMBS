@@ -656,6 +656,24 @@ bool Relation::update(std::vector<std::string> attr_list, std::vector<std::strin
 					++row_iter;
 				}
 				else{
+					tuple old_keys;
+
+					int row_key_iter = 0;
+					while (row_key_iter < row_iter->first.size()){
+						Attribute* current_key;
+
+						if (row_iter->first[row_key_iter]->get_class() == Attribute::attr_type::INTEGER){
+							current_key = new Integer(*dynamic_cast<Integer*>(row_iter->second[row_key_iter]));
+						}
+						else{
+							current_key = new Var_Char(*dynamic_cast<Var_Char*>(row_iter->second[row_key_iter]));
+						}
+
+						old_keys.push_back(current_key);
+						++row_key_iter;
+					}
+
+					new_rows.push_back(std::make_pair(old_keys, new_row));
 					++row_iter;
 				}
 			}
