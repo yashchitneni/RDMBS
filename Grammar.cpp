@@ -433,7 +433,7 @@ Relation& Grammar::atomic_expr(
 	}
 
 	Relation* new_relation = new Relation();
-	new_relation->table_name == "**";
+	new_relation->table_name = "**";			//OH: my IDE says that this should be an assignment, not an equality ("==").
 	return *new_relation;
 }
 
