@@ -190,7 +190,9 @@ bool Relation::meets_condition(
 		std::regex reg_greater("\\s*>\\s*");
 		std::regex reg_less_equal("\\s*<=\\s*");
 		std::regex reg_greater_equal("\\s*>=\\s*");
-		bool out;
+		bool out = false;	//OH: just to be sure it returns a correct value even if none of
+								//the if statements are taken. or should that last "else if"
+								//be an "else" instead?
 
 		if (std::regex_search(condition, m, reg_equal)){
 			out = (*op1 == *op2);
@@ -207,7 +209,7 @@ bool Relation::meets_condition(
 		else if (std::regex_search(condition, m, reg_less)){
 			out = (*op1 < *op2);
 		}
-		else if (std::regex_search(condition, m, reg_greater)){
+		else if (std::regex_search(condition, m, reg_greater)){		//OH: IDE sez that
 			out = (*op2 < *op1);
 		}
 
@@ -577,7 +579,7 @@ bool Relation::update(std::vector<std::string> attr_list, std::vector<std::strin
 					//Checks if the key will be changed with the change of an attribute
 					if (this->is_key(this->header_pos(change_attr))){
 						int key_pos = this->find_key(row_iter->second[this->header_pos(change_attr)], row_iter->first);
-						Attribute* new_attr;
+					//	Attribute* new_attr;	//OH: unused in this section
 
 						for (int key_iter = 0; key_iter < row_iter->first.size(); ++key_iter){
 
@@ -983,7 +985,8 @@ Relation* Relation::cross_product(Relation& other_table) {
 	std::vector<std::string> new_attr_header;
 	std::vector<std::string> other_header = other_table.header;
 
-	for (std::vector<std::string>::iterator it1 = header.begin(); it1 != header.end(); ++it1) {
+	//compiles together header titles into one
+	for (std::vector<std::string>::iterator it1 = header.begin(); it1 != header.end(); ++it1) {	//uses iterators for quick traversal of vector
 
 		if ((*it1)[0] == '%'){
 			std::string temp = it1->substr(1, it1->size() - 1);
@@ -1010,6 +1013,7 @@ Relation* Relation::cross_product(Relation& other_table) {
 
 	Relation* new_relation = new Relation("", new_key_header, new_attr_header);
 
+	//creates new tuples by pairing each tuple in this relation with all other tuples in other_table
 	for (auto row1 : t){
 		tuple attr1 = row1.second;
 

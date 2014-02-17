@@ -80,15 +80,19 @@ namespace Team_Project_1_Database{
 		Relation* selection(std::vector<std::string> conjunctions);
 
 		Relation* projection(std::vector<std::string> attr_list);
-
+		
+		//creates a new relation with header titles changed to those found in attr_list
 		Relation* renaming(std::vector<std::string> attr_list);
 
 		Relation* set_union(Relation& other_table);
 
 		Relation* set_difference(Relation& other_table);
 
+		//creates a new relation and fills it with tuples created by all possible
+			//combinations of the tuples found in this relation and other_table
 		Relation* cross_product(Relation& other_table);
 
+		//
 		Relation* natural_join(Relation& other_table);
 	};
 }
