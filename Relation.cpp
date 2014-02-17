@@ -209,7 +209,7 @@ bool Relation::meets_condition(
         else if (std::regex_search(condition, m, reg_less)){
             out = (*op1 < *op2);
         }
-        else if (std::regex_search(condition, m, reg_greater)){        //OH: IDE sez that
+        else if (std::regex_search(condition, m, reg_greater)){
             out = (*op2 < *op1);
         }
 
