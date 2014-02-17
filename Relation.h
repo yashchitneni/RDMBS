@@ -81,19 +81,31 @@ namespace Team_Project_1_Database{
 
 		Relation* projection(std::vector<std::string> attr_list);
 		
-		//creates a new relation with header titles changed to those found in attr_list
 		Relation* renaming(std::vector<std::string> attr_list);
-
+		//creates a new relation with header titles changed to those found in attr_list
+		//input: vector of new header titles (be sure the size of attr_list equals the
+			//size of the current header vector
+		//output: pointer to new relation with changed header titles
+		
 		Relation* set_union(Relation& other_table);
 
 		Relation* set_difference(Relation& other_table);
 
+		Relation* cross_product(Relation& other_table);
 		//creates a new relation and fills it with tuples created by all possible
 			//combinations of the tuples found in this relation and other_table
-		Relation* cross_product(Relation& other_table);
-
-		//
+		//input:  reference to existing relation
+		//output: pointer to new relation with new tuple combinations
+		
 		Relation* natural_join(Relation& other_table);
+		//follows the "a->b, b->c, then a->c" relationship by finding matching attributes
+			//between this relation and other_table, and creating a new relation with the
+			//condensed attributes (and tuples) of the two.
+			//if there are no matching attributes, then the cross_product of the two
+			//relations is returned.
+		//input:  reference to existing relation
+		//output: pointer to new relation with condensed attributes (or the cross_product
+			//if there are no matching attributes)
 	};
 }
 
