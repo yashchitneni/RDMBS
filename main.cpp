@@ -13,8 +13,8 @@ Tim Hopper
 using namespace Team_Project_1_Database;
 
 int main(){
-	Database db;
+    Database db;
 
-	db.execute("OPEN parser_milestone_good_inputs;");
-	return 0;
+    db.execute("OPEN parser_milestone_good_inputs;");
+    return 0;
 }

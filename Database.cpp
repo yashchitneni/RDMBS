@@ -7,5 +7,5 @@ Database::Database(){
 }
 
 void Database::execute(std::string input){
-	Grammar::program(input, tables);
+    Grammar::program(input, tables);
 }
