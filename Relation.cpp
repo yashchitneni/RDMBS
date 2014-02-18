@@ -190,9 +190,7 @@ bool Relation::meets_condition(
         std::regex reg_greater("\\s*>\\s*");
         std::regex reg_less_equal("\\s*<=\\s*");
         std::regex reg_greater_equal("\\s*>=\\s*");
-        bool out = false;    //OH: just to be sure it returns a correct value even if none of
-                                //the if statements are taken. or should that last "else if"
-                                //be an "else" instead?
+        bool out = false;
 
         if (std::regex_search(condition, m, reg_equal)){
             out = (*op1 == *op2);
@@ -579,7 +577,6 @@ bool Relation::update(std::vector<std::string> attr_list, std::vector<std::strin
                     //Checks if the key will be changed with the change of an attribute
                     if (this->is_key(this->header_pos(change_attr))){
                         int key_pos = this->find_key(row_iter->second[this->header_pos(change_attr)], row_iter->first);
-                    //    Attribute* new_attr;    //OH: unused in this section
 
                         for (int key_iter = 0; key_iter < row_iter->first.size(); ++key_iter){
 
