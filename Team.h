@@ -12,8 +12,6 @@
 #include <iostream>
 #include <vector>
 
-/* Guessing I need namespace Database */
-
 class Team {
 public:
     Team() {
