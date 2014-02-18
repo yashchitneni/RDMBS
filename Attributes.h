@@ -1,6 +1,7 @@
 /*
-class: attr
-Abstract class with inheriting subclasses integer and var_char
+class: Attributes
+Abstract class with inheriting subclasses Integer and Var_Char that
+act as containers for ints and strings respectively
 */
 
 #ifndef _ATTR
@@ -14,7 +15,11 @@ namespace Team_Project_1_Database{
         enum attr_type{INTEGER, VAR_CHAR};
         Attribute() {};
         virtual void set_value(std::string v) = 0;
+        
+        //Returns the value of the attribute as a string
         virtual std::string get_value() const = 0;
+        
+        //Returns the enum class of an attribute as an integer
         virtual int get_class() const = 0;
         virtual bool operator<(const Attribute& rhs) const= 0;
         virtual bool operator==(const Attribute& rhs) const = 0;
@@ -28,8 +33,10 @@ namespace Team_Project_1_Database{
         Integer(int v) : value(v){};
         Integer(const Integer& other);
         void set_value(std::string v);
-        std::string get_value() const;        //OH: my IDE is saying that "Integer::" is unnecessary.
+        std::string get_value() const;
         int get_class() const;
+        
+        //Compares are made to be the same as ints
         bool operator<(const Attribute& rhs) const;
         bool operator==(const Attribute& rhs) const;
         bool operator!=(const Attribute& rhs) const;
@@ -44,6 +51,8 @@ namespace Team_Project_1_Database{
         void set_value(std::string v);
         std::string get_value() const;
         int get_class() const;
+        
+        //Compares are made to be the same as strings
         bool operator<(const Attribute& rhs) const;
         bool operator==(const Attribute& rhs) const;
         bool operator!=(const Attribute& rhs) const;

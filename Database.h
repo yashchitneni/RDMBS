@@ -1,3 +1,8 @@
+/*
+class: Database
+Main container for database that holds relations and accepts input from user.
+*/
+
 #ifndef _DATABASE
 #define _DATABASE
 
@@ -9,6 +14,8 @@ namespace Team_Project_1_Database{
         std::vector<Relation> tables;
     public:
         Database();
+        
+        //Takes input from user and passes it to parser.
         void execute(std::string input);
     };
 }
