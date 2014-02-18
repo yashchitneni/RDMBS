@@ -722,11 +722,14 @@ Relation* Relation::selection(std::vector<std::string> conjunctions){
     std::vector<std::string>::iterator it1 = header.begin();
     std::vector<std::string> new_key_header;
     std::vector<std::string> new_attr_header;
-
+    
+    // Take care of header for new table being created
+    
     while (it1 != header.end()) {
         std::string temp1 = *it1;
         bool is_key = false;
-
+        
+        //keys have been assigned % sign and hence making the check to ensure finding the right keys
         if (temp1.substr(0, 1) == "%") {
             temp1 = temp1.substr(1, temp1.length() - 1);
             is_key = true;
