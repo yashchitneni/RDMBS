@@ -24,6 +24,23 @@ Due dates:
         DB APPLICATION
 
 Current responsibilities:
+    4    
+        to do:
+        nail down menu options
+            get specifics of internals of menu options
+        implement menu option functions
+        implement token generator function
+        connect menu option functions to token generator
+        display menu
+            parsing user input
+        pretty-ify the show functions
+        work with Tim on proper grammar wording
+        make sure no conflicts with header files
+ 
+        REPORT
+            framework
+        KEEP DEV LOG up to date
+
     2
         John        UPDATE
         Oliver      ???
@@ -32,6 +49,8 @@ Current responsibilities:
         Yash        SELECTION
         
         ALL         try to implement create and access tables
+
+
         
 Project notes:
     2
