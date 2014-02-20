@@ -24,7 +24,7 @@ Due dates:
         DB APPLICATION
 
 Helpful notes:
-    *standardized table header titles*
+    *standardized table header titles and tuple ordering*
     _PLAYER -> league_name, country, sponsor, current_champ, num_teams
     _TEAM   -> team_name, league, city, sponsor, year_founded, manager, kit, points, goals, assists, cards
     _LEAGUE -> player_name, jersey_num, team, position, goals, assists, cards, starter
