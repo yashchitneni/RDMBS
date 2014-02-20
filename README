@@ -25,9 +25,9 @@ Due dates:
 
 Helpful notes:
     *standardized table header titles and tuple ordering*
-    _PLAYER -> league_name, country, sponsor, current_champ, num_teams
-    _TEAM   -> team_name, league, city, sponsor, year_founded, manager, kit, points, goals, assists, cards
-    _LEAGUE -> player_name, jersey_num, team, position, goals, assists, cards, starter
+    _LEAGUE -> league_name VARCHAR, country VARCHAR, sponsor VARCHAR, current_champ VARCHAR, num_teams INTEGER
+    _TEAM   -> team_name VARCHAR, league VARCHAR, city VARCHAR, sponsor VARCHAR, year_founded INTEGER, manager VARCHAR, kit VARCHAR, points INTEGER, goals INTEGER, assists INTEGER, cards INTEGER
+    _PLAYER -> player_name VARCHAR, jersey_num INTEGER, team VARCHAR, position VARCHAR, goals INTEGER, assists INTEGER, cards INTEGER, starter VARCHAR
 
 Current responsibilities:
     4    

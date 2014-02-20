@@ -52,7 +52,7 @@ public:
     
     
     //constructors
-    Token_Generator();
+    //Token_Generator();
     
     //option methods
     
@@ -64,7 +64,7 @@ public:
     static std::string create_team(string name, string league, string city, string sponsor, int year_founded, string manager, string kit);
         //initialize "points" (use point system for wins/losses/ties), goals_scores, assists, and cards to 0 within
     
-    static std::string create_player(string name, int number, string team, string position);   //also include "invisible" attributes, like goals and assists
+    static std::string create_player(string name, int jersey_num, string team, string position);   //also include "invisible" attributes, like goals and assists
         //goals, assists, cards = 0
         //starting = no
         //can pass "" for team to make free agent
@@ -77,14 +77,16 @@ public:
     static std::string play_game(/*data, like which teams, etc.*/);   //THESE ARE FINAL STATS, after the game.
     static std::string play_game(string team1, string team2, int num_goals1, int num_goals2, vector<string> goal_scorers1, vector<string> goal_scorers2, int assists1, int assists2, vector<string> assisters1, vector<string> assisters2, int cards1, int cards2, vector<string> foulers1, vector<string> foulers2); //pass array of strings with same size as number of goals
         //look at contents of vector to determine how many for which players
-        //decide how vector is structure later
+        //decide how vector is structure later\
+    
+        //SPLIT UP INTO SEVERAL FUNCTIONS, with each update separate
     
     
         //update scores and goals, etc. for ONLY "big three" tables!
         //and REGENERATE roster tables for EVERY show!
     
     
-    static std::string view_player_stats(string player_name, string team_name /* this can change */);
+    static std::string view_player_stats(string player_name, int jersey_num, string team_name /* this can change */);
     //not sure exactly what identifying info we need...
     //maybe access the giant Player database and use unique IDs for ALL players? just an idea.
     
