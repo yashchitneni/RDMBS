@@ -15,7 +15,7 @@
 int main() {
     int input;
     
-    std::cout << "For the following commands, please type the coinciding number of the command and press enter";
+    std::cout << "For the following commands, please type the coinciding number of the command and press enter." << std::endl << std::endl;
     
     std::cout << "1. Create a League" << std::endl;
     std::cout << "2. Create a Team" << std::endl;

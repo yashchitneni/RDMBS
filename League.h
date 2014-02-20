@@ -20,7 +20,7 @@ public:
         league_name = "";
         country_name = "";
         sponsor_name = "";
-        current_champions = "";
+        current_champions = "";//
     }
     
     std::string getName() {

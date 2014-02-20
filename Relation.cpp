@@ -704,7 +704,11 @@ bool Relation::delete_from(std::vector<std::string> conjunctions){
         for (auto row : t){
 
             if (meets_conjunction(conj, row)){
-                remove.push_back(row.first);
+                tuple key_to_remove;
+              for(auto attribute : row.first){
+								key_to_remove.push_back(attribute);
+							}
+							remove.push_back(key_to_remove);
             }
         }
     }
