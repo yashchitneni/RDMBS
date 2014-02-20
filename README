@@ -23,6 +23,12 @@ Due dates:
     4                        Mon 2/24 11:50 pm
         DB APPLICATION
 
+Helpful notes:
+    *standardized table header titles*
+    _PLAYER -> league_name, country, sponsor, current_champ, num_teams
+    _TEAM   -> team_name, league, city, sponsor, year_founded, manager, kit, points, goals, assists, cards
+    _LEAGUE -> player_name, jersey_num, team, position, goals, assists, cards, starter
+
 Current responsibilities:
     4    
         to do:
