@@ -85,18 +85,32 @@ public:
         //update scores and goals, etc. for ONLY "big three" tables!
         //and REGENERATE roster tables for EVERY show!
     
+    static std::string play_game(string team1, string team2);
+    //static std::string game_goals_scored();
+        //not sure how we're going to do this. can i access within? no..
+    
+    //may need more info to access (primary keys)
+    static std::string update_goals_team(string team1, int goals);
+    static std::string update_goals_player(string player_name, int goals);
+    static std::string update_assists_team(string team_name, int assists);
+    static std::string update_assists_player(string player_name, int assists);
+    static std::string update_cards_team(string team_name, int cards);
+    static std::string update_cards_player(string player_name, int cards);
+    
     
     static std::string view_player_stats(string player_name, int jersey_num, string team_name /* this can change */);
     //not sure exactly what identifying info we need...
     //maybe access the giant Player database and use unique IDs for ALL players? just an idea.
     
-    static std::string view_team_stats(string team_name, string league_name /* team key */);
+    static std::string view_team_stats(string team_name, string manager);   //do we need league too?
     
     static std::string view_league_stats(string league_name /* league key */);
         //compute current_champion within
     
     static std::string view_team_roster(string team_name);
         //for displaying roster
+        //NEED TO BE SURE THAT THE RELATION HAS BEEN MADE FIRST
+            //I have no error checking in here, b/c i don't know. either in DBMS or in the calling function.
     
     static std::string view_league_teams(string league_name);
         //for displaying list of teams in league
