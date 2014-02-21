@@ -6,11 +6,15 @@
 //  Copyright (c) 2014 yash_chitneni. All rights reserved.
 //
 
-#include "Application_Interface.h"
+#include "Token_Generator.h"
+#include "Database.h"
+
 
 #include <iostream>
 #include <vector>
 #include <string>
+
+Team_Project_1_Database::Database soccer_DB;
 
 int main() {
     int input;
@@ -39,6 +43,8 @@ int main() {
             std::cin >> country_name;
             std::cout << "Who are the official sponsors of the league: ";
             std::cin >> sponsor_name;
+            
+            /* TAKE CARE OF CHAMPIONS BASED ON POINTS ? */
         }
         
         if (input == 2) {
@@ -61,6 +67,8 @@ int main() {
             std::cin >> manager_name;
             std::cout << "What is the color of the kit: ";
             std::cin >> kit_color;
+            
+            soccer_DB.execute(Token_Generator::create_team(team_name, city_name, sponsor_name, year_founded, manager_name, kit_color));
         }
         
         if (input == 3) {
@@ -88,6 +96,9 @@ int main() {
             std::string first_team_goals;
             std::string second_team_goals;
             
+            bool goalScored(int goals);
+            
+            
             std::string first_team_assists;
             std::string second_team_assists;
             
@@ -97,7 +108,37 @@ int main() {
             
             
             /* Call function that displays players of team if goals scored */
+        }
+        
+        if (input == 5) {
+            std::string player_name;
+            std::string jersey_num;
+            std::string team_name;
             
+            std::cout << "Name of team in which player plays: " << std::endl;
+            std::cin >> team_name;
+            std::cout << "What is his jersey number: " << std::endl;
+            std::cin >> jersey_num;
+            std::cout << "What is the player's name: ";
+            std::cin >> player_name;
+            
+        }
+        
+        if (input == 6) {
+            std::string team_name;
+            std::string league_name;
+            
+            std::cout << "Name of league in which team is: " << std::endl;
+            std::cin >> league_name;
+            std::cout << "Name of team: " << std::endl;
+            std::cin >> team_name;
+        }
+        
+        if (input == 7) {
+            std::string league_name;
+            
+            std::cout << "Name of league to view: " << std::endl;
+            std::cin >> league_name;
         }
     }
 }

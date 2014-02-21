@@ -44,9 +44,8 @@ public:
     
     /* Function to display roster of team if goal scored
      Do I show a vector full of players? What do I return here */
-    std::vector<std::string> player_names; // PROBABLY NOT
-    
-    
+    std::vector<std::Player*> player_names; // PROBABLY NOT
+
     
 private:
     std::string team_name;
