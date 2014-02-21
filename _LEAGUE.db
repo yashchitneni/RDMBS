@@ -1,0 +1,1 @@
+CREATE TABLE _LEAGUE ( name INTEGER(), country INTEGER(), sponsor INTEGER(), current_champ INTEGER(), num_teams INTEGER() ) PRIMARY KEY ( name );

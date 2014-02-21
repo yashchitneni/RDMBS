@@ -113,7 +113,7 @@ void Grammar::command(
         if (std::regex_search(arg, m, reg_rel_name)){
             std::string rel_name = m.str();
             arg = m.suffix().str();
-            std::regex reg_key("(?:\\(\\s*)(.*)(?:\\)\\s*)(?:\\s*PRIMARY KEY\\s*)(?:\\(\\s*)(.*)(?:\\s*\\))");
+            std::regex reg_key("(?:\\(\\s*)(.*)(?:\\)\\s*)(?:\\s*PRIMARY KEY\\s*\\(\\s*)(\\w.*)(?:\\s*\\))");
 
             if (std::regex_search(arg, m, reg_key)){
                 std::string attr_list = m[1].str();

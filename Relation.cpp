@@ -36,7 +36,8 @@ Relation::Relation(
     n_keys = key_header.size();
     n_attr = attr_header.size();
     table_name = name;
-    std::regex reg_header("([_[:alpha:]][_\\w]*)(?:\\s*(INTEGER|VARCHAR))");
+    std::regex reg_header("([_[:alpha:]][_\\w]*)(?:\\s*(INTEGER()|VARCHAR(\\d+)))");
+		std::regex reg_key("[_[:alpha:]][_\\w]*");
     std::smatch m;
 
     for (auto x : attr_header){
@@ -46,10 +47,12 @@ Relation::Relation(
         }
     }
     for (auto x : key_header){
-        int pos = header_pos(x);
+			if(std::regex_search(x, m, reg_key)){
+        int pos = header_pos(m.str());
         if (pos != -1){
             header[pos] = "%" + header[pos];
         }
+			}
     }
 }
 
@@ -314,11 +317,11 @@ void Relation::save(){
     for (int k = 0; k < header.size(); k++){
 
         if (is_key(k)){
-            c_header += " " + header[k].substr(1, header[k].size() - 1) + " INTEGER,";
-            c_key += " " + header[k].substr(1, header[k].size() - 1) + " ,";
+					c_header += " " + header[k].substr(1, header[k].size() - 1) + " INTEGER(),";
+          c_key += " " + header[k].substr(1, header[k].size() - 1) + " ,";
         }
         else{
-            c_header += " " + header[k] + " INTEGER,";
+          c_header += " " + header[k] + " INTEGER(),";
         }
     }
 

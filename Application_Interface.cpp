@@ -9,14 +9,30 @@
 #include "Token_Generator.h"
 #include "Database.h"
 
+/*
+Some suggestions:
+	-instead of having the main do all the work with the main menu, make a main menu method that displays the menu
+	-also it might be better to make seperate functions to handle the inputs for each case, ie: a create league 
+		function that handles the input/output for creating a league
+	-also redisplay the menu after a command has been executed rather than only displaying it at the start of the program
+	-might want to move the database declaration inside the main method so its not a global variable
+	-I added getting league name for creating a team since it wasn't included
+	-We might want to do atexit(close_database) to ensure that database is saved even upon crash or improper exiting
+	-add a exit option to the menu so that the user is able to exit out of the program
+*/
 
 #include <iostream>
 #include <vector>
 #include <string>
 
+void open_database();
+void close_database();
+
 Team_Project_1_Database::Database soccer_DB;
 
 int main() {
+	open_database();
+	close_database();
     int input;
     
     std::cout << "For the following commands, please type the coinciding number of the command and press enter." << std::endl << std::endl;
@@ -29,7 +45,7 @@ int main() {
     std::cout << "6. View Team Stats" << std::endl;
     std::cout << "7. Transfer Player" << std::endl;
     
-    while (true) {
+    while (false) {
         std::cin >> input;
         
         if (input == 1) {
@@ -49,6 +65,7 @@ int main() {
         
         if (input == 2) {
             std::string team_name;
+						std::string league_name;
             std::string city_name;
             std::string sponsor_name;
             int year_founded;
@@ -57,6 +74,8 @@ int main() {
             
             std::cout << "Choose a Team name: ";
             std::cin >> team_name;
+						std::cout << "What league do they play in: ";
+            std::cin >> league_name;
             std::cout << "What city is the team located in: ";
             std::cin >> city_name;
             std::cout << "Who are the official sponsors of the team: ";
@@ -68,7 +87,7 @@ int main() {
             std::cout << "What is the color of the kit: ";
             std::cin >> kit_color;
             
-            soccer_DB.execute(Token_Generator::create_team(team_name, city_name, sponsor_name, year_founded, manager_name, kit_color));
+            soccer_DB.execute(Token_Generator::create_team(team_name, league_name, city_name, sponsor_name, year_founded, manager_name, kit_color));
         }
         
         if (input == 3) {
@@ -143,9 +162,20 @@ int main() {
     }
 }
 
+void open_database(){
+	soccer_DB.execute("OPEN _LEAGUE;");
+	soccer_DB.execute("OPEN _TEAM;");
+	soccer_DB.execute("OPEN _PLAYER;");
 
+	return;
+}
 
-
+void close_database(){
+	soccer_DB.execute("CLOSE _LEAGUE;");
+	soccer_DB.execute("CLOSE _TEAM;");
+	soccer_DB.execute("CLOSE _PLAYER;");
+	return;
+}
 
 
 

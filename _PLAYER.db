@@ -1,0 +1,1 @@
+CREATE TABLE _PLAYER ( name INTEGER(), jersey_num INTEGER(), team INTEGER(), position INTEGER(), goals INTEGER(), assists INTEGER(), cards INTEGER(), starter INTEGER() ) PRIMARY KEY ( team );
