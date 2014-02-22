@@ -1,1 +1,7 @@
-CREATE TABLE _LEAGUE ( name INTEGER(), country INTEGER(), sponsor INTEGER(), current_champ INTEGER(), num_teams INTEGER() ) PRIMARY KEY ( name );
+CREATE TABLE _LEAGUE ( name INTEGER, country INTEGER, sponsor INTEGER, current_champ INTEGER, num_teams INTEGER ) PRIMARY KEY ( name );
+INSERT INTO _LEAGUE VALUES FROM ( "English Premier League", "England", "Sky Sports", "Manchester United", 20);
+INSERT INTO _LEAGUE VALUES FROM ("Serie A", "Italy", "Sky Italia", "Juventus", 20);
+INSERT INTO _LEAGUE VALUES FROM ("La Liga", "Spain", "Canal+ Liga", "Barcelona", 20);
+INSERT INTO _LEAGUE VALUES FROM ("Bundesliga", "Germany", "Sky Deutschland", "Bayern Munich", 18);
+INSERT INTO _LEAGUE VALUES FROM ("Major League Soccer", "United States", "ESPN", "Sporting Kansas City", 19);
+SHOW _LEAGUE;
