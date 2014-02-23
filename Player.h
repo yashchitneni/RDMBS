@@ -14,6 +14,7 @@ public:
     Player() {
         player_name = "";
         jersey_number = -1;
+        team_name = "";
         position = "";
     }
     
@@ -30,6 +31,7 @@ public:
     }
     
 private:
+    std::string team_name;
     std::string player_name;
     int jersey_number;
     std::string position;
