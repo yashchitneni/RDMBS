@@ -11,54 +11,6 @@
 
 using namespace Team_Project_1_Database;
 
-<<<<<<< HEAD
-//bool Menu::league_available(std::string league_name){
-//    
-//    /* Where/how to check database to see if league_name already exists. */
-//    
-//    //PLACE HOLDER FOR RIGHT NOW
-//    
-//    /* ****************** HOW DO I DO THE IF STATEMENT. I'M CONFUSED ABOUT HOW TO FIND THE LEAGUE NAME WITHIN THE DATABASE ******************** */
-//    
-//    if (league_name != league_name) {
-//        return true;
-//    }
-//    return true;
-//}
-//
-//bool Menu::team_available(std::string team_name, std::string league_name) {
-// 
-//    return true;
-//}
-//
-//bool Menu::player_available(std::string player_name, int jersey_number, std::string team_name) {
-//    
-//    return true;
-//}
-=======
-bool Menu::league_available(std::string league_name){
-    
-    /* Where/how to check database to see if league_name already exists. */
-    
-    //PLACE HOLDER FOR RIGHT NOW
-    
-    if (league_name != league_name) {
-        return true;
-    }
-    return true;
-}
-
-bool Menu::team_available(std::string team_name, std::string league_name) {
- 
-    return true;
-}
-
-bool Menu::player_available(std::string player_name, int jersey_number, std::string team_name) {
-    
-    return true;
-}
->>>>>>> TIm
-
 void Menu::original_menu(Database& soccer_DB){
     
     std::cout << "\nFor the following commands, please type the coinciding number of the command and press enter." << std::endl;
@@ -100,25 +52,25 @@ void Menu::create_team_menu(Database& soccer_DB) {
     std::string manager_name;
     std::string kit_color;
     
-		std::cout <<"\nEnter the following information about the team:" << std::endl;
+    std::cout <<"\nEnter the following information about the team:" << std::endl;
     std::cout << "Choose a Team name: ";
-		std::getline(cin, team_name);
+    std::getline(cin, team_name);
     std::cout << "What league is the team going to play in: ";
-		std::getline(cin, league_name);
+    std::getline(cin, league_name);
     std::cout << "What city is the team located in: ";
-		std::getline(cin, city_name);
+    std::getline(cin, city_name);
     std::cout << "Who are the official sponsors of the team: ";
-		std::getline(cin, sponsor_name);
-		do{
-			std::cout << "What year was the team founded: ";
-			std::string input;
-			std::getline(cin, input);
-			year_founded = atoi(input.c_str());
-		}while(!year_founded);
+    std::getline(cin, sponsor_name);
+    do{
+        std::cout << "What year was the team founded: ";
+        std::string input;
+        std::getline(cin, input);
+        year_founded = atoi(input.c_str());
+    }while(!year_founded);
     std::cout << "What is the name of the coach: ";
     std::getline(cin, manager_name);
     std::cout << "What is the color of the kit: ";
-		std::getline(cin, kit_color);
+    std::getline(cin, kit_color);
     soccer_DB.execute(Token_Generator::create_team(team_name, league_name, city_name, sponsor_name, year_founded, manager_name, kit_color));
 }
 
@@ -141,67 +93,67 @@ void Menu::create_player_menu(Database& soccer_DB) {
     soccer_DB.execute(Token_Generator::create_player(player_name, jersey_number, team_name, position));
 }
 
-<<<<<<< HEAD
-void Menu::team_goals_update(std::string team_name, int goals) {
-    
+void Menu::update_player_goals(Database& soccer_DB, std::string team_name, int goals) {
+    if (goals > 0) {
+        soccer_DB.execute(Token_Generator::view_team_roster(team_name));
+        int assists = 0;
+        for (int i = 0; i <= goals; i++) {
+            int player_number;
+            std::cout << "Who scored the " << i << " goal: " << std::endl;
+            std::cin >> player_number;
+            soccer_DB.execute(Token_Generator::update_goals_player(team_name, player_number));
+            int assister_number;
+            std::cout << "Who assisted the " << i << " goal: " << std::endl;
+            std::cin >> assister_number;
+            soccer_DB.execute(Token_Generator::update_assists_player(team_name, assister_number));
+            assists++;
+        }
+        soccer_DB.execute(Token_Generator::update_assists_team(team_name, assists));
+    }
 }
 
-void Menu::player_goals_update(std::string player_name, int goals) {
-    
+void Menu::update_player_cards(Database& soccer_DB, std::string team_name, int cards) {
+    if (cards > 0) {
+        soccer_DB.execute(Token_Generator::view_team_roster(team_name));
+        for (int i = 0; i <= cards; i++) {
+            int player_number;
+            std::cout << "Who received the " << i << " card: " << std::endl;
+            std::cin >> player_number;
+            soccer_DB.execute(Token_Generator::update_cards_player(team_name, player_number));
+        }
+    }
 }
 
-=======
->>>>>>> TIm
 void Menu::play_game_menu(Database& soccer_DB) {
     std::string league_name;
     
     std::string first_team_name;
     std::string second_team_name;
     
-<<<<<<< HEAD
     int first_team_goals;
     int second_team_goals;
-        
+
+    int first_team_cards;
+    int second_team_cards;
+    
     std::cout << "How many goals did " << first_team_name << " score: " << std::endl;
     std::cin >> first_team_goals;
-    team_goals_update(first_team_name, first_team_goals); /* Goals should increment whatever number there was previously in that location */
+    soccer_DB.execute(Token_Generator::update_goals_team(first_team_name, first_team_goals));
     
     std::cout << "How many goals did " << second_team_name << " score: " << std::endl;
     std::cin >> second_team_goals;
-    team_goals_update(second_team_name, second_team_goals); /* Goals should increment whatever number there was previously in that location */
+    soccer_DB.execute(Token_Generator::update_goals_team(second_team_name, second_team_goals));
     
-    if (goals_scored(first_team_name, first_team_goals)) {
-        
-        for (int i = 0; i <= first_team_goals; i++) {
-            std::string player_name;
-            std::cout << "Who scored the " << i << " goal: " << std::endl;
-            std::cin >> player_name;
-            player_goals_update(player_name, i);
-        }
-        
-        for (int i = 0; i <= second_team_goals; i++) {
-            std::string player_name;
-            std::cout << "Who scored the " << i << " goal: " << std::endl;
-            std::cin >> player_name;
-            player_goals_update(player_name, i);
-        }
-    }
-=======
-    std::string first_team_goals;
-    std::string second_team_goals;
->>>>>>> TIm
+    update_player_goals(soccer_DB, first_team_name, first_team_goals);
+    update_player_goals(soccer_DB, second_team_name, second_team_goals);
+
+    std::cout << "How many cards did " << first_team_name << " receive: " << std::endl;
+    std::cin >> first_team_cards;
+    std::cout << "How many cards did " << second_team_name << " receive: " << std::endl;
+    std::cin >> second_team_cards;
     
-    std::string player_name;
-    std::cout << "Who scored for " << first_team_name << ": " << std::endl;
-    std::cin >> player_name;
-    
-    std::string first_team_assists;
-    std::string second_team_assists;
-    
-    std::string first_team_cards;
-    std::string second_team_cards;
-    
-    /* Call function that displays players of team if goals scored */
+    update_player_cards(soccer_DB, first_team_name, first_team_cards);
+    update_player_cards(soccer_DB, second_team_name, second_team_cards);
 }
 
 void Menu::player_stats_menu(Database& soccer_DB) {
