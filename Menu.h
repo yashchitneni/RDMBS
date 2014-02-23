@@ -20,13 +20,26 @@ public:
     
     void original_menu();
     
+    bool league_exists(std::string league_name);
+    bool team_exists(std::string league_name, std::string team_name);
+    bool player_exists(std::string team_name, std::string player_name);
+    
     bool league_available(std::string league_name);
-    bool team_available(std::string team_name, std::string league_name);
-    bool player_available(std::string player_name, int jersey_number, std::string team_name);
+    bool team_available(std::string team_name, std::string league_name); /* Need to make sure League already exists and Team does not exist */
+    bool player_available(std::string player_name, int jersey_number, std::string team_name); /* Need to make sure Team already exists and League does not exist */
     
     void create_league_menu();
     void create_team_menu();
     void create_player_menu();
+    
+    bool teams_exist(std::string league_name, std::string team_name_1, std::string team_name_2);
+    bool goals_scored(std::string team_name, int goals);
+    
+    void team_goals_update(std::string team_name, int goals);
+    void player_goals_update(std::string player_name, int goals);
+    
+    void goals_grammar(int number);
+    
     void play_game_menu();
     void player_stats_menu();
     void team_stats_menu();
