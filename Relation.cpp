@@ -36,7 +36,8 @@ Relation::Relation(
     n_keys = key_header.size();
     n_attr = attr_header.size();
     table_name = name;
-    std::regex reg_header("([_[:alpha:]][_\\w]*)(?:\\s*(INTEGER|VARCHAR))");
+    std::regex reg_header("([_[:alpha:]][_\\w]*)(?:\\s*(INTEGER|VARCHAR(.*)))");
+		std::regex reg_key("[_[:alpha:]][_\\w]*");
     std::smatch m;
 
     for (auto x : attr_header){
@@ -46,10 +47,12 @@ Relation::Relation(
         }
     }
     for (auto x : key_header){
-        int pos = header_pos(x);
+			if(std::regex_search(x, m, reg_key)){
+        int pos = header_pos(m.str());
         if (pos != -1){
             header[pos] = "%" + header[pos];
         }
+			}
     }
 }
 
@@ -95,14 +98,31 @@ Relation::Relation(const Relation& other_table){
 }
 
 /*
+assignment operator
+*/
+Relation& Relation::operator=(const Relation& rhs){
+	if(*this == rhs)
+		return *this;
+	header.clear();
+	t.clear();
+	header = rhs.header;
+  n_keys = rhs.n_keys;
+  n_attr = rhs.n_attr;
+  table_name = rhs.table_name;
+  insert_into(rhs);
+	return *this;
+}
+
+/*
 destructor
 */
 Relation::~Relation(){
-    for (auto row_iter : t){
-        for (auto attr_iter : row_iter.second){
-            delete attr_iter;
-        }
+	header.clear();
+  for (auto row_iter : t){
+    for (auto attr_iter : row_iter.second){
+        delete attr_iter;
     }
+  }
 }
 
 bool Relation::meets_condition(
@@ -293,8 +313,29 @@ std::vector<std::string> Relation::get_header() const{
     return header;
 }
 
+Attribute* Relation::get_attribute(std::string conjunction, std::string column){
+	int pos = header_pos(column);
+
+	if( pos != -1 ){
+
+		for( auto row : t ){
+
+			if(meets_conjunction(conjunction, row))
+				return row.second[pos];
+		}
+
+	}
+
+	return new Integer();
+}
+
+
 Relation::table Relation::get_table() const{
     return t;
+}
+
+int Relation::get_size() const{
+	return t.size();
 }
 
 void Relation::save(){
@@ -303,8 +344,10 @@ void Relation::save(){
 
     if (file_exists.fail()){
         std::printf("Failed to open table file: %s\n", file_name.c_str());
+				file_exists.close();
         return;
     }
+		file_exists.close();
 
     std::ofstream table_file(file_name, std::ios_base::trunc | std::ios_base::out);
     std::string c_table = "CREATE TABLE " + table_name + " (";
@@ -314,11 +357,11 @@ void Relation::save(){
     for (int k = 0; k < header.size(); k++){
 
         if (is_key(k)){
-            c_header += " " + header[k].substr(1, header[k].size() - 1) + " INTEGER,";
-            c_key += " " + header[k].substr(1, header[k].size() - 1) + " ,";
+					c_header += " " + header[k].substr(1, header[k].size() - 1) + " INTEGER,";
+          c_key += " " + header[k].substr(1, header[k].size() - 1) + " ,";
         }
         else{
-            c_header += " " + header[k] + " INTEGER,";
+          c_header += " " + header[k] + " INTEGER,";
         }
     }
 
@@ -326,47 +369,66 @@ void Relation::save(){
     c_key.pop_back();
     c_table += c_header + c_key + ");";
     table_file << c_table;
-
     for (auto row : t){
         std::string c_row = "\nINSERT INTO " + table_name + " VALUES FROM (";
-
+				
         for (auto attr : row.second){
-            if (attr->get_class() == Attribute::attr_type::VAR_CHAR){
-                c_row += " \"" + attr->get_value() + "\" ,";
-            }
-            else{
-                c_row += " " + attr->get_value() + " ,";
-            }
+          if (attr->get_class() == Attribute::attr_type::VAR_CHAR){
+              c_row += " \"" + attr->get_value() + "\" ,";
+          }
+          else{
+              c_row += " " + attr->get_value() + " ,";
+          }
         }
 
         c_row.pop_back();
         c_row += ");";
         table_file << c_row;
     }
+		
+		table_file.close();
 }
 
-void Relation::show(){
+void Relation::show() const{
     std::printf("TABLE NAME: %s\n", table_name.c_str());
+		std::vector<int> length;
+		int pos = 0;
+		for( auto x : header){
+			length.push_back(x.size());
+		}
 
+		for(auto row : t){
+			pos = 0;
+
+			for(auto attr : row.second){
+				length[pos] = std::max(length[pos], (int)attr->get_value().length());
+				pos++;
+			}
+
+		}
+
+		pos = 0;
     for (auto x : header){
 
-        if (x[0] == '%'){
-            std::printf("%15s", x.substr(1, x.size() - 1).c_str());
-        }
-        else{
-            std::printf("%15s", x.c_str());
-        }
+      if (x[0] == '%'){
+          std::printf("%-*s", length[pos]+ 3, x.substr(1, x.size() - 1).c_str());
+      }
+      else{
+          std::printf("%-*s", length[pos]+ 3, x.c_str());
+      }
+			pos++;
     }
 
     std::printf("\n");
-
+		
     for (auto row : t){
+			pos = 0;
+      for (auto attr : row.second){
+          std::printf(" %-*s", length[pos]+ 2, attr->get_value().c_str());
+					pos++;
+      }
 
-        for (auto attr : row.second){
-            std::printf("%15s", attr->get_value().c_str());
-        }
-
-        std::printf("\n");
+      std::printf("\n");
     }
 
     std::printf("\n");
@@ -406,7 +468,7 @@ bool Relation::operator!= (const Relation& rhs) const{
 }
 
 bool Relation::insert_into(std::vector<std::string> literals){
-    std::regex reg_var("(?:\")([\\w\\s]+)(?:\")");
+    std::regex reg_var("(?:\")([\\w\\s+=-_]+)(?:\")");
     std::smatch m;
     tuple keys;
     tuple attrs;
@@ -415,10 +477,10 @@ bool Relation::insert_into(std::vector<std::string> literals){
         Attribute* new_attr;
 
         if (std::regex_search(x, m, reg_var)){
-            new_attr = new Var_Char(m[1].str());
+          new_attr = new Var_Char(m[1].str());
         }
         else{
-            new_attr = new Integer(atoi(x.c_str()));
+          new_attr = new Integer(atoi(x.c_str()));
         }
 
         attrs.push_back(new_attr);
