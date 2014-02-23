@@ -9,6 +9,8 @@
 #include "Menu.h"
 #include "Token_Generator.h"
 
+using namespace Team_Project_1_Database;
+
 bool Menu::league_available(std::string league_name){
     
     /* Where/how to check database to see if league_name already exists. */
@@ -33,10 +35,9 @@ bool Menu::player_available(std::string player_name, int jersey_number, std::str
     return true;
 }
 
-void Menu::original_menu(){
+void Menu::original_menu(Database& soccer_DB){
     
-    std::cout << "For the following commands, please type the coinciding number of the command and press enter." << std::endl << std::endl;
-    
+    std::cout << "\nFor the following commands, please type the coinciding number of the command and press enter." << std::endl;
     std::cout << "1. Create a League" << std::endl;
     std::cout << "2. Create a Team" << std::endl;
     std::cout << "3. Create a Player" << std::endl;
@@ -46,9 +47,10 @@ void Menu::original_menu(){
     std::cout << "7. View League Stats" << std::endl;
     std::cout << "8. Transfer Player" << std::endl;
     std::cout << "9. Exit Program" << std::endl;
+		std::cout << " -> ";
 }
 
-void Menu::create_league_menu() {
+void Menu::create_league_menu(Database& soccer_DB) {
     std::string league_name;
     std::string country_name;
     std::string sponsor_name;
@@ -58,23 +60,17 @@ void Menu::create_league_menu() {
     
     /* Take care of duplicates */
     
-    if (league_available(league_name)) {
-        std::cout << "What country is the league located in: ";
-        std::cin >> country_name;
-        std::cout << "Who are the official sponsors of the league: ";
-        std::cin >> sponsor_name;
-    }
-    else {
-        std::cout << "Sorry " << league_name << " already exists. Please choose another team name" << std::endl;
-        create_league_menu();
-    }
+    std::cout << "What country is the league located in: ";
+    std::cin >> country_name;
+    std::cout << "Who are the official sponsors of the league: ";
+    std::cin >> sponsor_name;
     
-    Menu::soccer_DB.execute(Token_Generator::create_league(league_name, country_name, sponsor_name));
+    soccer_DB.execute(Token_Generator::create_league(league_name, country_name, sponsor_name));
     
     /* What do we do about points */
 }
 
-void Menu::create_team_menu() {
+void Menu::create_team_menu(Database& soccer_DB) {
     std::string team_name;
     std::string league_name;
     std::string city_name;
@@ -84,32 +80,32 @@ void Menu::create_team_menu() {
     std::string kit_color;
     
     std::cout << "Choose a Team name: ";
-    std::cin >> team_name;
-    std::cout << "What league is the team going to play in: " << std::endl;
-    std::cin >> league_name;
+		std::getline(cin, team_name);
+    std::cout << "What league is the team going to play in: ";
+		std::getline(cin, league_name);
     
     /* Take care of duplicates */
     
-    if (team_available(team_name, league_name)) {
-        std::cout << "What city is the team located in: ";
-        std::cin >> city_name;
-        std::cout << "Who are the official sponsors of the team: ";
-        std::cin >> sponsor_name;
-        std::cout << "What year was the team founded: ";
-        std::cin >> year_founded;
-        std::cout << "What is the name of the coach: ";
-        std::cin >> manager_name;
-        std::cout << "What is the color of the kit: ";
-        std::cin >> kit_color;
-    }
-    else {
-        std::cout << "Sorry " << team_name << " already exists. Please choose another team name" << std::endl;
-        create_league_menu();
-    }
-    Menu::soccer_DB.execute(Token_Generator::create_team(team_name, league_name, city_name, sponsor_name, year_founded, manager_name, kit_color));
+    std::cout << "What city is the team located in: ";
+		std::getline(cin, city_name);
+    std::cout << "Who are the official sponsors of the team: ";
+		std::getline(cin, sponsor_name);
+		do{
+			if(cin.fail()){
+				cin.clear();
+				cin.ignore(numeric_limits<streamsize>::max(), '\n');
+			}
+			std::cout << "What year was the team founded: ";
+			std::cin >> year_founded;
+		}while(cin.fail());
+    std::cout << "What is the name of the coach: ";
+    std::getline(cin, manager_name);
+    std::cout << "What is the color of the kit: ";
+		std::getline(cin, kit_color);
+    soccer_DB.execute(Token_Generator::create_team(team_name, league_name, city_name, sponsor_name, year_founded, manager_name, kit_color));
 }
 
-void Menu::create_player_menu() {
+void Menu::create_player_menu(Database& soccer_DB) {
     
     std::string player_name;
     std::string team_name;
@@ -127,9 +123,10 @@ void Menu::create_player_menu() {
     
     /* Check for Duplicates */
     
-    Menu::soccer_DB.execute(Token_Generator::create_player(player_name, jersey_number, team_name, position));
+    soccer_DB.execute(Token_Generator::create_player(player_name, jersey_number, team_name, position));
 }
 
+<<<<<<< HEAD
 bool Menu::teams_exist(std::string league_name, std::string team_name_1, std::string team_name_2) {
     /* Go into LEAGUE DATABASE and check if the team_name_1 and 2 exist */
     return true;
@@ -165,6 +162,9 @@ void Menu::play_game_menu() {
 
     /* I could have the variables all declared initially and then have separate if statements */
     
+=======
+void Menu::play_game_menu(Database& soccer_DB) {
+>>>>>>> 6483dc245a2cf1157188c4c5f02b1b6c7e7cac0e
     std::string league_name;
     
     std::string first_team_name;
@@ -223,9 +223,13 @@ void Menu::play_game_menu() {
     /* Call function that displays players of team if goals scored */
 }
 
+<<<<<<< HEAD
 
 
 void Menu::player_stats_menu() {
+=======
+void Menu::player_stats_menu(Database& soccer_DB) {
+>>>>>>> 6483dc245a2cf1157188c4c5f02b1b6c7e7cac0e
     std::string player_name;
     std::string jersey_num;
     std::string team_name;
@@ -238,7 +242,7 @@ void Menu::player_stats_menu() {
     std::cin >> player_name;
 }
 
-void Menu::team_stats_menu() {
+void Menu::team_stats_menu(Database& soccer_DB) {
     std::string team_name;
     std::string league_name;
     
@@ -248,13 +252,13 @@ void Menu::team_stats_menu() {
     std::cin >> team_name;
 }
 
-void Menu::league_stats_menu() {
+void Menu::league_stats_menu(Database& soccer_DB) {
     std::string league_name;
     
     std::cout << "Name of league to view: " << std::endl;
     std::cin >> league_name;
 }
 
-void Menu::transfer_player() {
+void Menu::transfer_player(Database& soccer_DB) {
     
 }

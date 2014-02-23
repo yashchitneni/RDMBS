@@ -12,14 +12,22 @@
 #include <iostream>
 #include "Database.h"
 
-#endif /* defined(__RDBMS__Menu__) */
+/*
+I made a couple changes, basically changing the functions to be static functions that take a database as input
+Also I don't think that checking if a team/league/player exists already is necessary because the database doesn't allow duplicates in 
+	the first place so adding a duplicate will do nothing
+Additionally, make sure you do error checking for the inputs from the user (see the revised create_team_menu function), things to watch
+	for: cin>> only gets the first word so getline is better, ie: any input that could have multiple words would only get the first word
+			 added some error checking for reading integers in from cin
+*/
 
-class Menu {
-public:
-    Menu();
+
+namespace Team_Project_1_Database{
+	class Menu {
+	public:
+			Menu();
     
-    void original_menu();
-    
+<<<<<<< HEAD
     bool league_exists(std::string league_name);
     bool team_exists(std::string league_name, std::string team_name);
     bool player_exists(std::string team_name, std::string player_name);
@@ -45,13 +53,28 @@ public:
     void team_stats_menu();
     void league_stats_menu();
     void transfer_player();
+=======
+			static void original_menu(Database& soccer_DB);
     
-    /* Maybe unnecessary functions */
+			bool league_available(std::string league_name);
+			bool team_available(std::string team_name, std::string league_name);
+			bool player_available(std::string player_name, int jersey_number, std::string team_name);
+>>>>>>> 6483dc245a2cf1157188c4c5f02b1b6c7e7cac0e
     
-//    void league_available(bool league_exists());
-//    void team_available(bool team_exists());
-//    void player_available(bool player_exists());
+			static void create_league_menu(Database& soccer_DB);
+			static void create_team_menu(Database& soccer_DB);
+			static void create_player_menu(Database& soccer_DB);
+			static void play_game_menu(Database& soccer_DB);
+			static void player_stats_menu(Database& soccer_DB);
+			static void team_stats_menu(Database& soccer_DB);
+			static void league_stats_menu(Database& soccer_DB);
+			static void transfer_player(Database& soccer_DB);
     
-private:
-    Team_Project_1_Database::Database soccer_DB;
-};
+			/* Maybe unnecessary functions */
+    
+	//    void league_available(bool league_exists());
+	//    void team_available(bool team_exists());
+	//    void player_available(bool player_exists());
+	};
+}
+#endif /* defined(__RDBMS__Menu__) */
