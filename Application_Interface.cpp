@@ -7,7 +7,7 @@
 //
 
 #include "Token_Generator.h"
-#include "Database.h"
+#include "Menu.h"
 
 /*
 Some suggestions:
@@ -25,145 +25,53 @@ Some suggestions:
 #include <vector>
 #include <string>
 
+using namespace Team_Project_1_Database;
+
 void open_database();
 void close_database();
 
-Team_Project_1_Database::Database soccer_DB;
+Database soccer_DB;
 
 int main() {
 	open_database();
 	atexit(close_database);
-    int input;
-    
-    std::cout << "For the following commands, please type the coinciding number of the command and press enter." << std::endl;
-    std::cout << "1. Create a League" << std::endl;
-    std::cout << "2. Create a Team" << std::endl;
-    std::cout << "3. Create a Player" << std::endl;
-    std::cout << "4. Play Game" << std::endl;
-    std::cout << "5. View Player Stats" << std::endl;
-    std::cout << "6. View Team Stats" << std::endl;
-    std::cout << "7. Transfer Player" << std::endl;
-		std::cout << "8. Exit" << std::endl << std::endl;
-    std::cout << "-> ";
-
-    while (true) {
-        std::cin >> input;
-        
-        if (input == 1) {
-            std::string league_name;
-            std::string country_name;
-            std::string sponsor_name;
-            
-            std::cout << "Choose a League name: ";
-            std::cin >> league_name;
-            std::cout << "What country is the league located in: ";
-            std::cin >> country_name;
-            std::cout << "Who are the official sponsors of the league: ";
-            std::cin >> sponsor_name;
-            
-            /* TAKE CARE OF CHAMPIONS BASED ON POINTS ? */
-        }
-        
-        if (input == 2) {
-            std::string team_name;
-						std::string league_name;
-            std::string city_name;
-            std::string sponsor_name;
-            int year_founded;
-            std::string manager_name;
-            std::string kit_color;
-            
-            std::cout << "Choose a Team name: ";
-            std::cin >> team_name;
-						std::cout << "What league do they play in: ";
-            std::cin >> league_name;
-            std::cout << "What city is the team located in: ";
-            std::cin >> city_name;
-            std::cout << "Who are the official sponsors of the team: ";
-            std::cin >> sponsor_name;
-            std::cout << "What year was the team founded: ";
-            std::cin >> year_founded;
-            std::cout << "What is the name of the coach: ";
-            std::cin >> manager_name;
-            std::cout << "What is the color of the kit: ";
-            std::cin >> kit_color;
-            
-            soccer_DB.execute(Token_Generator::create_team(team_name, league_name, city_name, sponsor_name, year_founded, manager_name, kit_color));
-        }
-        
-        if (input == 3) {
-            
-            /* Error check to ensure jersey number is not repeated */
-            
-            std::string player_name;
-            int jersey_number;
-            std::string position;
-            
-            std::cout << "Choose a Player name: ";
-            std::cin >> player_name;
-            std::cout << "What is his jersey number: ";
-            std::cin >> jersey_number;
-            std::cout << "What position does he play: ";
-            std::cin >> position;
-        }
-        
-        if (input == 4) {
-            std::string league_name;
-            
-            std::string first_team_name;
-            std::string second_team_name;
-            
-            std::string first_team_goals;
-            std::string second_team_goals;
-            
-            bool goalScored(int goals);
-            
-            
-            std::string first_team_assists;
-            std::string second_team_assists;
-            
-            std::string first_team_cards;
-            std::string second_team_cards;
-
-            
-            
-            /* Call function that displays players of team if goals scored */
-        }
-        
-        if (input == 5) {
-            std::string player_name;
-            std::string jersey_num;
-            std::string team_name;
-            
-            std::cout << "Name of team in which player plays: " << std::endl;
-            std::cin >> team_name;
-            std::cout << "What is his jersey number: " << std::endl;
-            std::cin >> jersey_num;
-            std::cout << "What is the player's name: ";
-            std::cin >> player_name;
-            
-        }
-        
-        if (input == 6) {
-            std::string team_name;
-            std::string league_name;
-            
-            std::cout << "Name of league in which team is: " << std::endl;
-            std::cin >> league_name;
-            std::cout << "Name of team: " << std::endl;
-            std::cin >> team_name;
-        }
-        
-        if (input == 7) {
-            std::string league_name;
-            
-            std::cout << "Name of league to view: " << std::endl;
-            std::cin >> league_name;
-        }
-				if (input == 8) {
-					exit(0);
-				}
-    }
+	while(true){
+		std::string input;
+		int choice;
+		Menu::original_menu(soccer_DB);
+		std::getline(cin, input);
+		choice = atoi(input.c_str());
+		switch(choice){
+		case 0:
+			std::cout << "Error reading input, try again" << std::endl;
+			break;
+		case 1: 
+			Menu::create_league_menu(soccer_DB);
+			break;
+		case 2: 
+			Menu::create_team_menu(soccer_DB);
+			break;
+		case 3: 
+			Menu::create_player_menu(soccer_DB);
+			break;
+		case 4: 
+			Menu::play_game_menu(soccer_DB);
+			break;
+		case 5: 
+			Menu::player_stats_menu(soccer_DB);
+			break;
+		case 6: 
+			Menu::team_stats_menu(soccer_DB);
+			break;
+		case 7: 
+			Menu::league_stats_menu(soccer_DB);
+			break;
+		case 8: 
+			Menu::transfer_player(soccer_DB);
+			break;
+		case 9: exit(0);
+		}
+	}
 }
 
 void open_database(){
