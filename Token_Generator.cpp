@@ -76,17 +76,54 @@ std::string Token_Generator::form_league(string league_name) {
     return token_stream.str();
 }
 
-/*
- 
- 
- play_game methods go here
- 
- 
- */
+std::string Token_Generator::update_goals_team(string team_name, int goals){
+	std::stringstream token_stream;
+	token_stream << "UPDATE _TEAM" << " SET goals = ++" << goals;
+	token_stream << " WHERE  name == \"" << team_name << "\" ;";
 
+	return token_stream.str();
+}
+std::string Token_Generator::update_goals_player(string team_name, int jersey_num){
+	std::stringstream token_stream;
+	token_stream << "UPDATE _PLAYER" << " SET goals = ++" << 1;
+	token_stream << " WHERE  team == \"" << team_name << "\" && jersey_num == " << jersey_num << " ;";
 
+	return token_stream.str();
+}
 
+std::string Token_Generator::update_assists_player(string team_name, int jersey_num){
+	std::stringstream token_stream;
+	token_stream << "UPDATE _PLAYER" << " SET assists = ++" << 1;
+	token_stream << " WHERE  team == \"" << team_name << "\" && jersey_num == " << jersey_num << " ;";
 
+	return token_stream.str();
+}
+
+std::string Token_Generator::update_assists_team(string team_name, int assists){
+	std::stringstream token_stream;
+	token_stream << "UPDATE _PLAYER" << " SET assists = ++" << assists;
+	token_stream << " WHERE  name == \"" << team_name << "\" ;";
+
+	return token_stream.str();
+}
+
+std::string Token_Generator::update_cards_player(string team_name, int jersey_num){
+	std::stringstream token_stream;
+	token_stream << "UPDATE _PLAYER" << " SET cards = ++" << 1;
+	token_stream << " WHERE  team == \"" << team_name << "\" && jersey_num == " << jersey_num << " ;";
+
+	return token_stream.str();
+}
+
+std::string Token_Generator::update_cards_team(string team_name, int cards){ 
+	std::stringstream token_stream;
+	token_stream << "UPDATE _PLAYER" << " SET cards = ++" << cards;
+	token_stream << " WHERE  name == \"" << team_name << "\" ;";
+
+	return token_stream.str();
+}
+
+std::string Token_Generator::update_points_team(std::string team_name, int points){return "";}
 
 std::string Token_Generator::view_player_stats(string player_name, int jersey_num, string team_name) {
     std::stringstream token_stream;

@@ -90,14 +90,14 @@ public:
         //not sure how we're going to do this. can i access within? no..
     
     //may need more info to access (primary keys)
-    static std::string update_goals_team(string team1, int goals);
-    static std::string update_goals_player(string player_name, int goals);
+    static std::string update_goals_team(string team_name, int goals);
+    static std::string update_goals_player(string team_name, int jersey_num);
     static std::string update_assists_team(string team_name, int assists);
-    static std::string update_assists_player(string player_name, int assists);
+    static std::string update_assists_player(string team_name, int jersey_num);
     static std::string update_cards_team(string team_name, int cards);
-    static std::string update_cards_player(string player_name, int cards);
-    
-    
+    static std::string update_cards_player(string team_name, int jersey_num);
+    static std::string update_points_team(std::string team_name, int points);
+
     static std::string view_player_stats(string player_name, int jersey_num, string team_name /* this can change */);
     //not sure exactly what identifying info we need...
     //maybe access the giant Player database and use unique IDs for ALL players? just an idea.
