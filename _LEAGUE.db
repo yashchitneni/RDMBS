@@ -4,3 +4,4 @@ INSERT INTO _LEAGUE VALUES FROM ( "English Premier League" , "England" , "Sky Sp
 INSERT INTO _LEAGUE VALUES FROM ( "La Liga" , "Spain" , "Canal+ Liga" , "Barcelona" , 20 );
 INSERT INTO _LEAGUE VALUES FROM ( "Major League Soccer" , "United States" , "ESPN" , "Sporting Kansas City" , 19 );
 INSERT INTO _LEAGUE VALUES FROM ( "Serie A" , "Italy" , "Sky Italia" , "Juventus" , 20 );
+INSERT INTO _LEAGUE VALUES FROM ( "Test" , "USA" , "ESPN" , " " , 0 );

@@ -36,7 +36,7 @@
 //STANDARDIZED table header titles
 //_LEAGUE -> league_name, country, sponsor, current_champ, num_teams
 //_TEAM -> team_name, league, city, sponsor, year_founded, manager, kit, points, goals, assists, cards
-//_PLAYER -> player_name, jersey_num, team, position, goals, assists, cards, starter
+//_PLAYER -> player_name, team, jersey_num, position, goals, assists, cards, starter
 
 
 #include <iostream>

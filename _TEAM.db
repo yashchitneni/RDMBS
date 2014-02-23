@@ -1,4 +1,5 @@
 CREATE TABLE _TEAM ( name INTEGER, league INTEGER, city INTEGER, sponsor INTEGER, year_founded INTEGER, manager INTEGER, kit INTEGER, points INTEGER, goals INTEGER, assists INTEGER, cards INTEGER ) PRIMARY KEY ( name );
+INSERT INTO _TEAM VALUES FROM ( "Arsenal" , "English Premier League" , "Holloway" , "sponsors" , 1886 , "Arsene Wenger" , "Red with White Bottoms" , 0 , 0 , 0 , 0 );
 INSERT INTO _TEAM VALUES FROM ( "Barcelona" , "La Liga" , "Barcelona" , "sponsor" , 1899 , "Gerardo Martino" , "Blue with Red Stripes" , 0 , 0 , 0 , 0 );
 INSERT INTO _TEAM VALUES FROM ( "Bayern Munich" , "Bundesliga" , "Munich" , "sponsor" , 1900 , "Pep Guardiola" , "Red" , 0 , 0 , 0 , 0 );
 INSERT INTO _TEAM VALUES FROM ( "Juventus" , "Serie A" , "Turin" , "sponsor" , 1897 , "Antonio Conte" , "White with Black Stripes" , 0 , 0 , 0 , 0 );

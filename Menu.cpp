@@ -17,8 +17,6 @@ bool Menu::league_available(std::string league_name){
     
     //PLACE HOLDER FOR RIGHT NOW
     
-    /* ****************** HOW DO I DO THE IF STATEMENT. I'M CONFUSED ABOUT HOW TO FIND THE LEAGUE NAME WITHIN THE DATABASE ******************** */
-    
     if (league_name != league_name) {
         return true;
     }
@@ -79,6 +77,7 @@ void Menu::create_team_menu(Database& soccer_DB) {
     std::string manager_name;
     std::string kit_color;
     
+		std::cout <<"\nEnter the following information about the team:" << std::endl;
     std::cout << "Choose a Team name: ";
 		std::getline(cin, team_name);
     std::cout << "What league is the team going to play in: ";
@@ -91,13 +90,11 @@ void Menu::create_team_menu(Database& soccer_DB) {
     std::cout << "Who are the official sponsors of the team: ";
 		std::getline(cin, sponsor_name);
 		do{
-			if(cin.fail()){
-				cin.clear();
-				cin.ignore(numeric_limits<streamsize>::max(), '\n');
-			}
 			std::cout << "What year was the team founded: ";
-			std::cin >> year_founded;
-		}while(cin.fail());
+			std::string input;
+			std::getline(cin, input);
+			year_founded = atoi(input.c_str());
+		}while(!year_founded);
     std::cout << "What is the name of the coach: ";
     std::getline(cin, manager_name);
     std::cout << "What is the color of the kit: ";
@@ -126,89 +123,14 @@ void Menu::create_player_menu(Database& soccer_DB) {
     soccer_DB.execute(Token_Generator::create_player(player_name, jersey_number, team_name, position));
 }
 
-<<<<<<< HEAD
-bool Menu::teams_exist(std::string league_name, std::string team_name_1, std::string team_name_2) {
-    /* Go into LEAGUE DATABASE and check if the team_name_1 and 2 exist */
-    return true;
-}
-
-void Menu::team_goals_update(std::string team_name, int goals) {
-    
-}
-
-void Menu::player_goals_update(std::string player_name, int goals) {
-    
-}
-
-
-/* ***************** HOW DO I INCORPORATE THE FUNCTION BELOW, GOALS_GRAMMAR, INTO THE FOR LOOP WITHIN GOALS_SCORED IN THE PLAY_GAME_MENU FUNCTION *********************** */
-
-void Menu::goals_grammar(int number) {
-    if (number == 1) {
-        std::cout << "st" << std::endl;
-    }
-    else if (number == 2) {
-        std::cout << "nd" << std::endl;
-    }
-    else if (number == 3) {
-        std::cout << "rd" << std::endl;
-    }
-    else {
-        std::cout << "th" << std::endl;
-    }
-}
-
-void Menu::play_game_menu() {
-
-    /* I could have the variables all declared initially and then have separate if statements */
-    
-=======
 void Menu::play_game_menu(Database& soccer_DB) {
->>>>>>> 6483dc245a2cf1157188c4c5f02b1b6c7e7cac0e
     std::string league_name;
     
     std::string first_team_name;
     std::string second_team_name;
     
-    int first_team_goals;
-    int second_team_goals;
-    
-    if (teams_exist(league_name, first_team_name, second_team_name)) {
-        
-        std::cout << "How many goals did " << first_team_name << " score: " << std::endl;
-        std::cin >> first_team_goals;
-        team_goals_update(first_team_name, first_team_goals); /* Goals should increment whatever number there was previously in that location */
-        
-        std::cout << "How many goals did " << second_team_name << " score: " << std::endl;
-        std::cin >> second_team_goals;
-        team_goals_update(second_team_name, second_team_goals); /* Goals should increment whatever number there was previously in that location */
-        
-        if (goals_scored(first_team_name, first_team_goals)) {
-            for (int i = 0; i <= first_team_goals; i++) {
-                std::string player_name;
-                std::cout << "Who scored the " << i << " goal: " << std::endl;
-                std::cin >> player_name;
-                player_goals_update(player_name, i); /* i should increment for the update whatever number there was previously */
-                
-                /* **************** I HAVE THE FUNCTIONS LIKE PLAYER_GOALS_UPDATE STATED ABOVE AND I HAVE NOT DEFINED THEM YET BUT FOR GOALS UPDATE, IT'S THE SAME THING AS
-                 FINDING A PART WITHIN THE DATABASE. HOW CAN I FIND THE PLAYER GOALS. IF I FIND THAT I WAS THINKING ABOUT INCREMENTING WHATEVER NUMBER
-                 THERE IS WITH THE GOALS BEING SCORED HERE ******************* */
-            }
-            
-            for (int i = 0; i <= second_team_goals; i++) {
-                std::string player_name;
-                std::cout << "Who scored the " << i << " goal: " << std::endl;
-                std::cin >> player_name;
-                player_goals_update(player_name, i);
-            }
-        }
-    }
-    else {
-        std::cout << "There has been an error in naming either " << league_name <<
-        ", " << first_team_name << " or " << second_team_name <<
-        ". The league or teams don't exist or they have been spelled incorrectly." << std::endl;
-        play_game_menu();
-    }
+    std::string first_team_goals;
+    std::string second_team_goals;
     
     std::string player_name;
     std::cout << "Who scored for " << first_team_name << ": " << std::endl;
@@ -223,13 +145,7 @@ void Menu::play_game_menu(Database& soccer_DB) {
     /* Call function that displays players of team if goals scored */
 }
 
-<<<<<<< HEAD
-
-
-void Menu::player_stats_menu() {
-=======
 void Menu::player_stats_menu(Database& soccer_DB) {
->>>>>>> 6483dc245a2cf1157188c4c5f02b1b6c7e7cac0e
     std::string player_name;
     std::string jersey_num;
     std::string team_name;
