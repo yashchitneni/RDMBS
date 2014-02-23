@@ -29,7 +29,7 @@ std::string Token_Generator::create_league(string name, string country, string s
     
     token_stream << "INSERT INTO _LEAGUE VALUES FROM (\"" << name;
     token_stream << "\", \"" << country << "\", \"" << sponsor << "\", \"";
-    token_stream << " " << "\", 0);";   /* current champ to null -> " " */
+    token_stream << "none" << "\", 0);";   /* current champ to null -> " " */
     
     return token_stream.str();
 }
@@ -39,21 +39,20 @@ std::string Token_Generator::create_team(string name, string league, string city
     
     //team -> NAME, city, sponsor, year_founded, MANAGER, kit, points, goals, assists, cards
     
-    token_stream << "INSERT INTO _TEAM VALUES FROM (\"" << name;
+    token_stream << "INSERT INTO _TEAM VALUES FROM (\"" << name << "\", \"" << league;
     token_stream << "\", \"" << city << "\", \"" << sponsor << "\", ";
-    token_stream << year_founded << ", \"" << manager << "\", \"" << kit << "\"";
+    token_stream << year_founded << ", \"" << manager << "\", \"" << kit << "\" ,";
     token_stream << " 0, 0, 0, 0);";
-    
     return token_stream.str();
 }
 
 std::string Token_Generator::create_player(string name, int jersey_num, string team, string position) {
-    //player -> name, JERSEY_NUM, TEAM, position, goals, assists, cards, starter
+    //player -> name, TEAM, JERSEY_NUM, position, goals, assists, cards, starter
     
     std::stringstream token_stream;
     
     token_stream << "INSERT INTO _PLAYER VALUES FROM (\"" << name;
-    token_stream << "\", " << jersey_num << ", \"" << team << "\", \"";
+    token_stream << ", \"" << team << "\", \"" << "\", " << jersey_num;
     token_stream << position << "\", 0, 0, 0, \"no\");";    //HOW FORMAT STARTERS??
                                                                     //"no" and "yes"
     return token_stream.str();
