@@ -58,24 +58,6 @@ std::string Token_Generator::create_player(string name, int jersey_num, string t
     return token_stream.str();
 }
 
-std::string Token_Generator::form_roster(string team_name) {
-    std::stringstream token_stream;
-    
-    token_stream << team_name << " <- select (team == \"" << team_name;
-    token_stream << "\") _PLAYER;";
-    
-    return token_stream.str();
-}
-
-std::string Token_Generator::form_league(string league_name) {
-    std::stringstream token_stream;
-    
-    token_stream << league_name << " <- select (league == \"" << league_name;
-    token_stream << "\") _TEAM;";
-    
-    return token_stream.str();
-}
-
 std::string Token_Generator::update_goals_team(string team_name, int goals){
 	std::stringstream token_stream;
 	token_stream << "UPDATE _TEAM" << " SET goals = ++" << goals;
