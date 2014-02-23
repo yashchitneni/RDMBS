@@ -17,7 +17,7 @@ Some suggestions:
 	-also redisplay the menu after a command has been executed rather than only displaying it at the start of the program
 	-might want to move the database declaration inside the main method so its not a global variable
 	-I added getting league name for creating a team since it wasn't included
-	-We might want to do atexit(close_database) to ensure that database is saved even upon crash or improper exiting
+	-We might want to do atexit(close_database) to ensure that database is saved even upon crash or improper exiting (might not work if database is inside main)
 	-add a exit option to the menu so that the user is able to exit out of the program
 */
 
@@ -32,11 +32,10 @@ Team_Project_1_Database::Database soccer_DB;
 
 int main() {
 	open_database();
-	close_database();
+	atexit(close_database);
     int input;
     
-    std::cout << "For the following commands, please type the coinciding number of the command and press enter." << std::endl << std::endl;
-    
+    std::cout << "For the following commands, please type the coinciding number of the command and press enter." << std::endl;
     std::cout << "1. Create a League" << std::endl;
     std::cout << "2. Create a Team" << std::endl;
     std::cout << "3. Create a Player" << std::endl;
@@ -44,8 +43,10 @@ int main() {
     std::cout << "5. View Player Stats" << std::endl;
     std::cout << "6. View Team Stats" << std::endl;
     std::cout << "7. Transfer Player" << std::endl;
-    
-    while (false) {
+		std::cout << "8. Exit" << std::endl << std::endl;
+    std::cout << "-> ";
+
+    while (true) {
         std::cin >> input;
         
         if (input == 1) {
@@ -159,14 +160,20 @@ int main() {
             std::cout << "Name of league to view: " << std::endl;
             std::cin >> league_name;
         }
+				if (input == 8) {
+					exit(0);
+				}
     }
 }
 
 void open_database(){
 	soccer_DB.execute("OPEN _LEAGUE;");
+	soccer_DB.execute("SHOW _LEAGUE;");
 	soccer_DB.execute("OPEN _TEAM;");
+	soccer_DB.execute("SHOW _TEAM;");
 	soccer_DB.execute("OPEN _PLAYER;");
-
+	soccer_DB.execute("SHOW _PLAYER;");
+	std::cout << "Players, Teams, and Leagues have been loaded.\n";
 	return;
 }
 
@@ -174,6 +181,7 @@ void close_database(){
 	soccer_DB.execute("CLOSE _LEAGUE;");
 	soccer_DB.execute("CLOSE _TEAM;");
 	soccer_DB.execute("CLOSE _PLAYER;");
+	std::cout << "Players, Teams, and Leagues have been saved.\n";
 	return;
 }
 

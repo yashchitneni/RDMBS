@@ -66,6 +66,8 @@ namespace Team_Project_1_Database{
 
         Relation(const Relation& other_table);
 
+				Relation& operator=(const Relation& rhs);
+
         ~Relation();
 
         void set_name(std::string name);
@@ -74,10 +76,16 @@ namespace Team_Project_1_Database{
 
         std::vector<std::string> get_header() const;
 
+				Attribute* get_attribute(
+					std::string conjunction,
+					std::string column);
+
         table get_table() const;
 
+				int get_size() const;
+
         void save();
-        void show();
+        void show() const;
 
         //Comparators that check if two relations' headers and attributes in their tables are the same.
         bool operator== (const Relation& rhs) const;

@@ -10,7 +10,7 @@ using namespace Team_Project_1_Database;
 
 void Grammar::program(
     std::string input,
-    std::vector<Relation>& tables){
+    database tables){
 
     std::regex reg_semi_colon(";");
     std::regex reg_cmd("OPEN|CLOSE|WRITE|EXIT|SHOW|(CREATE TABLE)|UPDATE|(INSERT INTO)|(DELETE FROM)");
@@ -20,7 +20,6 @@ void Grammar::program(
         input = m.prefix().str();
     }
     else{
-        std::printf("No ending semi-colon\n");
         return;
     }
 
@@ -35,7 +34,7 @@ void Grammar::program(
 
 void Grammar::command(
     std::string input,
-    std::vector<Relation>& tables){
+    database tables){
 
     std::regex reg_open("^\\s*OPEN");
     std::regex reg_close("^\\s*CLOSE");
@@ -48,7 +47,6 @@ void Grammar::command(
     std::smatch m;
 
     if (std::regex_search(input, m, reg_open)){
-        std::printf("Open: %s\n", m.suffix().str().c_str());
         std::string arg = m.suffix().str();
         std::regex reg_rel_name("[_[:alpha:]][_\\w]*");
 
@@ -63,7 +61,6 @@ void Grammar::command(
     }
 
     if (std::regex_search(input, m, reg_close)){
-        std::printf("Close: %s\n", m.suffix().str().c_str());
         std::string arg = m.suffix().str();
         std::regex reg_rel_name("[_[:alpha:]][_\\w]*");
 
@@ -78,7 +75,6 @@ void Grammar::command(
     }
 
     if (std::regex_search(input, m, reg_write)){
-        std::printf("Write: %s\n", m.suffix().str().c_str());
         std::string arg = m.suffix().str();
         std::regex reg_rel_name("[_[:alpha:]][_\\w]*");
 
@@ -93,10 +89,8 @@ void Grammar::command(
     }
 
     if (std::regex_search(input, m, reg_show)){
-        std::printf("Show: %s\n", m.suffix().str().c_str());
         std::string arg = m.suffix().str();
         Relation atomic = atomic_expr(arg, tables);
-        std::printf("%s\n", atomic.table_name.c_str());
 
         if (atomic.table_name == "**"){
             return;
@@ -106,7 +100,6 @@ void Grammar::command(
         return;
     }
     if (std::regex_search(input, m, reg_create)){
-        std::printf("Create: %s\n", m.suffix().str().c_str());
         std::regex reg_rel_name("[_[:alpha:]][_\\w]*");
         std::string arg = m.suffix().str();
 
@@ -128,7 +121,6 @@ void Grammar::command(
     }
 
     if (std::regex_search(input, m, reg_update)){
-        std::printf("Update: %s\n", m.suffix().str().c_str());
         std::regex reg_rel_name("[_[:alpha:]][_\\w]*");
         std::string arg = m.suffix().str();
 
@@ -156,7 +148,6 @@ void Grammar::command(
     }
 
     if (std::regex_search(input, m, reg_insert)){
-        std::printf("Insert: %s\n", m.suffix().str().c_str());
         std::regex reg_rel_name("[_[:alpha:]][_\\w]*");
         std::string arg = m.suffix().str();
 
@@ -198,7 +189,6 @@ void Grammar::command(
     }
 
     if (std::regex_search(input, m, reg_delete)){
-        std::printf("Delete: %s\n", m.suffix().str().c_str());
         std::regex reg_rel_name("[_[:alpha:]][_\\w]*");
         std::string arg = m.suffix().str();
 
@@ -227,7 +217,7 @@ void Grammar::command(
 
 void Grammar::open_cmd(
     std::string input,
-    std::vector<Relation>& tables){
+    database tables){
 
     std::string file_name = input + ".db";
     std::ifstream table_file(file_name);
@@ -236,24 +226,22 @@ void Grammar::open_cmd(
         std::printf("Failed to open table file: %s\n", file_name.c_str());
     }
     else{
-        std::printf("Opened: %s\n", file_name.c_str());
         std::string line;
 
         while (std::getline(table_file, line)){
             program(line, tables);
         }
     }
+		table_file.close();
 }
 
 void Grammar::close_cmd(
     std::string input,
-    std::vector<Relation>& tables){
+    database tables){
 
     int pos = find_relation(input, tables);
-
     if (pos != -1){
         Relation& table = tables[pos];
-
         table.save();
         tables.erase(tables.begin() + pos);
     }
@@ -271,7 +259,7 @@ void Grammar::show_cmd(Relation& table){
 void Grammar::create_cmd(
     std::string table_name,
     std::string keys, std::string attrs,
-    std::vector<Relation>& tables){
+    database tables){
 
     std::vector<std::string> key_list = split_attr(keys);
     std::vector<std::string> attr_list = split_attr(attrs);
@@ -282,7 +270,7 @@ void Grammar::update_cmd(
     std::string table_name,
     std::string attrs,
     std::string conditions,
-    std::vector<Relation>& tables){
+    database tables){
 
     int pos = find_relation(table_name, tables);
 
@@ -322,7 +310,7 @@ void Grammar::delete_cmd(
 
 void Grammar::query(
     std::string input,
-    std::vector<Relation>& tables){
+    database tables){
 
     std::regex reg_rel_name("\\s*<-\\s*");
     std::smatch m;
@@ -342,7 +330,7 @@ void Grammar::query(
 
 Relation& Grammar::expr(
     std::string input,
-    std::vector<Relation>& tables){
+    database tables){
 
     std::regex reg_select("^\\s*select\\s*");
     std::regex reg_projection("^\\s*project\\s*");
@@ -417,7 +405,7 @@ Relation& Grammar::expr(
 
 Relation& Grammar::atomic_expr(
     std::string input,
-    std::vector<Relation>& tables){
+    database tables){
     std::regex reg_expr("\\(.*\\)");
     std::smatch m;
 
@@ -437,7 +425,7 @@ Relation& Grammar::atomic_expr(
     return *new_relation;
 }
 
-int Grammar::find_relation(std::string input, std::vector<Relation>& tables){
+int Grammar::find_relation(std::string input, database tables){
     std::regex name("[_[:alpha:]][_\\w]*");
     std::smatch m;
 

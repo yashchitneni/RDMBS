@@ -24,6 +24,8 @@ namespace Team_Project_1_Database{
         virtual bool operator<(const Attribute& rhs) const= 0;
         virtual bool operator==(const Attribute& rhs) const = 0;
         virtual bool operator!=(const Attribute& rhs) const = 0;
+				virtual void operator++() = 0;
+				virtual void operator--() = 0;
     };
 
     class Integer : public Attribute{
@@ -40,6 +42,8 @@ namespace Team_Project_1_Database{
         bool operator<(const Attribute& rhs) const;
         bool operator==(const Attribute& rhs) const;
         bool operator!=(const Attribute& rhs) const;
+				void operator++();
+				void operator--();
     };
 
     class Var_Char : public Attribute{
@@ -56,6 +60,8 @@ namespace Team_Project_1_Database{
         bool operator<(const Attribute& rhs) const;
         bool operator==(const Attribute& rhs) const;
         bool operator!=(const Attribute& rhs) const;
+				void operator++();
+				void operator--();
     };
 }
 #endif

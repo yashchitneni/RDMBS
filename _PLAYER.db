@@ -1,1 +1,12 @@
-CREATE TABLE _PLAYER ( name INTEGER(), jersey_num INTEGER(), team INTEGER(), position INTEGER(), goals INTEGER(), assists INTEGER(), cards INTEGER(), starter INTEGER() ) PRIMARY KEY ( team );
+CREATE TABLE _PLAYER ( name INTEGER, jersey_num INTEGER, team INTEGER, position INTEGER, goals INTEGER, assists INTEGER, cards INTEGER, starter INTEGER ) PRIMARY KEY ( jersey_num , team );
+INSERT INTO _PLAYER VALUES FROM ( "Manuel Neuer" , 1 , "Bayern Munich" , "Goalie" , 0 , 0 , 0 , "yes" );
+INSERT INTO _PLAYER VALUES FROM ( "Dante" , 4 , "Bayern Munich" , "Defender" , 0 , 0 , 0 , "yes" );
+INSERT INTO _PLAYER VALUES FROM ( "Thiago Alcantara" , 6 , "Bayern Munich" , "Midfielder" , 0 , 0 , 0 , "yes" );
+INSERT INTO _PLAYER VALUES FROM ( "Javi Martinez" , 8 , "Bayern Munich" , "Midfielder" , 0 , 0 , 0 , "yes" );
+INSERT INTO _PLAYER VALUES FROM ( "Mario Mandzukic" , 9 , "Bayern Munich" , "Forward" , 0 , 0 , 0 , "yes" );
+INSERT INTO _PLAYER VALUES FROM ( "Arjen Robben" , 10 , "Bayern Munich" , "Midfielder" , 0 , 0 , 0 , "yes" );
+INSERT INTO _PLAYER VALUES FROM ( "Jerome Boateng" , 17 , "Bayern Munich" , "Defender" , 0 , 0 , 0 , "yes" );
+INSERT INTO _PLAYER VALUES FROM ( "Mario Gotze" , 19 , "Bayern Munich" , "Midfielder" , 0 , 0 , 0 , "yes" );
+INSERT INTO _PLAYER VALUES FROM ( "Philipp Lahm" , 21 , "Bayern Munich" , "Defender" , 0 , 0 , 0 , "yes" );
+INSERT INTO _PLAYER VALUES FROM ( "David Alaba" , 27 , "Bayern Munich" , "Defender" , 0 , 0 , 0 , "yes" );
+INSERT INTO _PLAYER VALUES FROM ( "Toni Kroos" , 39 , "Bayern Munich" , "Midfielder" , 0 , 0 , 0 , "yes" );

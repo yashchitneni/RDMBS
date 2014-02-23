@@ -7,12 +7,13 @@
 
 namespace Team_Project_1_Database{
     class Grammar{
+			typedef std::vector<Relation>& database;
     public:
         /*
         Main function that takes in the entire input then decides if it is a command or query
         calls either the command or query function
         */
-        static void program(std::string input, std::vector<Relation>& tables);
+        static void program(std::string input, database tables);
     private:
         friend class Relation;
 
@@ -21,21 +22,21 @@ namespace Team_Project_1_Database{
         */
         static void command(
             std::string input,
-            std::vector<Relation>& tables);
+            database tables);
 
         /*
         Open function that takes a table name as input and opens the corresponding database file
         */
         static void open_cmd(
             std::string input,
-            std::vector<Relation>& tables);
+            database tables);
 
         /*
         Close function that takes a table name as input that saves and closes the corresponding table
         */
         static void close_cmd(
             std::string input,
-            std::vector<Relation>& tables);
+            database tables);
 
         /*
         Write function that takes a table name as input and creates the corresponding database file
@@ -56,7 +57,7 @@ namespace Team_Project_1_Database{
             std::string table_name,
             std::string keys,
             std::string attrs,
-            std::vector<Relation>& tables);
+            database tables);
 
         /*
         Update function that takes a table name, attributes to be updated, and conditions as input and 
@@ -64,9 +65,11 @@ namespace Team_Project_1_Database{
         attrs is a list of all the attribute names to be updated and the new value of the form "name == new_value", with each one separated by a ","
         conditions is a list of conditions to be met, with each one separated by a "||"
         */
-        static void update_cmd(std::string table_name,
-            std::string attrs, std::string conditions,
-            std::vector<Relation>& tables);
+        static void update_cmd(
+					std::string table_name,
+          std::string attrs,
+					std::string conditions,
+          database tables);
 
         /*
         Insert function that takes a two tables as input and inserts the values from the second into the first
@@ -96,7 +99,7 @@ namespace Team_Project_1_Database{
         */
         static void query(
             std::string input,
-            std::vector<Relation>& tables);
+            database tables);
 
         /*
         Expr function that takes a expression as input and returns the corresponding table
@@ -104,7 +107,7 @@ namespace Team_Project_1_Database{
         */
         static Relation& expr(
             std::string input,
-            std::vector<Relation>& tables);
+            database tables);
 
         /*
         Atomic Expression function that takes an atomic expression as input and returns the corresponding table
@@ -112,14 +115,14 @@ namespace Team_Project_1_Database{
         */
         static Relation& atomic_expr(
             std::string input,
-            std::vector<Relation>& tables);
+            database tables);
 
         /*
         Find Relation function that takes in a table name as input and returns the table's position in the vector (-1 if not found)
         */
         static int find_relation(
             std::string input,
-            std::vector<Relation>& tables);
+            database tables);
 
         /*
         Selection function that takes in conditions and a table as input, performs the selection operation on the table, and returns the new table
