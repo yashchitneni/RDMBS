@@ -75,7 +75,7 @@ void Menu::create_team_menu(Database& soccer_DB) {
     std::getline(cin, kit_color);
     soccer_DB.execute(Token_Generator::create_team(team_name, league_name, city_name, sponsor_name, year_founded, manager_name, kit_color));
 
-		soccer_DB.execute(Token_Generator::update_num_teams(league_name));
+		soccer_DB.execute(Token_Generator::update_num_teams(league_name, 0));
 }
 
 void Menu::create_player_menu(Database& soccer_DB) {
@@ -103,35 +103,46 @@ void Menu::create_player_menu(Database& soccer_DB) {
 
 void Menu::update_player_goals(Database& soccer_DB, std::string team_name, int goals) {
     if (goals > 0) {
-        soccer_DB.execute(Token_Generator::view_team_starting_roster(team_name));
-        int assists = 0;
-        for (int i = 1; i <= goals; i++) {
-            int player_number;
-            std::cout << "Enter the number of the player that scored the " << i << " goal\n -> ";
-            std::string input;
-						std::getline(cin, input);
-						player_number = atoi(input.c_str());
-						int current_goals = 0;
-						std::vector<std::string> table_data;
-						soccer_DB.execute(Token_Generator::get_num_goals(team_name, player_number), table_data);
+			std::vector<std::string> table_data;
+      soccer_DB.execute(Token_Generator::view_team_starting_roster(team_name));
+      int assists = 0;
+      for (int i = 1; i <= goals; i++) {
+          int player_number;
+          std::cout << "Enter the number of the player that scored the " << i << " goal\n -> ";
+          std::string input;
+					std::getline(cin, input);
+					player_number = atoi(input.c_str());
+					int current_goals = 0;
+					soccer_DB.execute(Token_Generator::get_num_goals(team_name, player_number), table_data);
+					if(table_data.size())
+						current_goals = atoi(table_data[0].c_str()) + 1;
+          soccer_DB.execute(Token_Generator::update_goals_player(team_name, player_number, current_goals));
+          int assister_number;
+          std::cout << "Enter the number of the player that assisted the " << i << " goal (0 for no assist)\n -> ";
+          std::getline(cin, input);
+					assister_number = atoi(input.c_str());
+					if(assister_number){
+						int current_assists = 0;
+						table_data.clear();
+						soccer_DB.execute(Token_Generator::get_num_assists(team_name, player_number), table_data);
 						if(table_data.size())
-							current_goals = atoi(table_data[0].c_str()) + 1;
-            soccer_DB.execute(Token_Generator::update_goals_player(team_name, player_number, current_goals));
-            int assister_number;
-            std::cout << "Enter the number of the player that assisted the " << i << " goal (0 for no assist)\n -> ";
-            std::getline(cin, input);
-						assister_number = atoi(input.c_str());
-						if(assister_number){
-							soccer_DB.execute(Token_Generator::update_assists_player(team_name, assister_number));
-							assists++;
-						}
-        }
-        soccer_DB.execute(Token_Generator::update_assists_team(team_name, assists));
+							current_assists = atoi(table_data[0].c_str()) + 1;
+						soccer_DB.execute(Token_Generator::update_assists_player(team_name, assister_number, current_assists));
+						assists++;
+					}
+      }
+			int current_team_assists = 0;
+			table_data.clear();
+			soccer_DB.execute(Token_Generator::get_num_team_assists(team_name), table_data);
+			if(table_data.size())
+				current_team_assists = atoi(table_data[0].c_str()) + assists;
+      soccer_DB.execute(Token_Generator::update_assists_team(team_name, current_team_assists));
     }
 }
 
 void Menu::update_player_cards(Database& soccer_DB, std::string team_name, int cards) {
     if (cards > 0) {
+			std::vector<std::string> table_data;
         soccer_DB.execute(Token_Generator::view_team_starting_roster(team_name));
         for (int i = 1; i <= cards; i++) {
             int player_number;
@@ -139,7 +150,11 @@ void Menu::update_player_cards(Database& soccer_DB, std::string team_name, int c
             std::string input;
 						std::getline(cin, input);
 						player_number = atoi(input.c_str());
-            soccer_DB.execute(Token_Generator::update_cards_player(team_name, player_number));
+						int current_cards = 0;
+						soccer_DB.execute(Token_Generator::get_num_cards(team_name, player_number), table_data);
+						if(table_data.size())
+							current_cards = atoi(table_data[0].c_str()) + 1;
+            soccer_DB.execute(Token_Generator::update_cards_player(team_name, player_number, current_cards));
         }
     }
 }
@@ -156,7 +171,8 @@ void Menu::play_game_menu(Database& soccer_DB) {
     
     int first_team_cards = 0;
     int second_team_cards = 0;
-    
+    std::vector<std::string> table_data;
+
 		soccer_DB.execute("SHOW _LEAGUE;");
 		std::cout << "What league do the teams play in?\n -> ";
 		std::getline(cin, league_name);
@@ -172,12 +188,21 @@ void Menu::play_game_menu(Database& soccer_DB) {
     std::cout << "How many goals did " << first_team_name << " score\n -> ";
     std::getline(cin, int_input);
     first_team_goals = atoi(int_input.c_str());
-    soccer_DB.execute(Token_Generator::update_goals_team(first_team_name, first_team_goals));
+		soccer_DB.execute(Token_Generator::get_num_team_goals(first_team_name), table_data);
+		int first_team_current_goals = 0;
+		if(table_data.size())
+			first_team_current_goals = first_team_goals + atoi(table_data[0].c_str());
+    soccer_DB.execute(Token_Generator::update_goals_team(first_team_name, first_team_current_goals));
     
     std::cout << "How many goals did " << second_team_name << " score\n -> ";
 		std::getline(cin, int_input);
     second_team_goals = atoi(int_input.c_str());
-    soccer_DB.execute(Token_Generator::update_goals_team(second_team_name, second_team_goals));
+		table_data.clear();
+		soccer_DB.execute(Token_Generator::get_num_team_goals(second_team_name), table_data);
+		int second_team_current_goals = 0;
+		if(table_data.size())
+			second_team_current_goals = second_team_goals + atoi(table_data[0].c_str());
+    soccer_DB.execute(Token_Generator::update_goals_team(second_team_name, second_team_current_goals));
 
 		match_points(soccer_DB, first_team_name, second_team_name, first_team_goals, second_team_goals);
     
@@ -187,11 +212,21 @@ void Menu::play_game_menu(Database& soccer_DB) {
     std::cout << "How many cards did " << first_team_name << " receive: " << std::endl;
 		std::getline(cin, int_input);
     first_team_cards = atoi(int_input.c_str());
-		soccer_DB.execute(Token_Generator::update_cards_team(first_team_name, first_team_cards));
+		table_data.clear();
+		soccer_DB.execute(Token_Generator::get_num_team_cards(first_team_name), table_data);
+		int first_team_current_cards = 0;
+		if(table_data.size())
+			first_team_current_cards = first_team_cards + atoi(table_data[0].c_str());
+		soccer_DB.execute(Token_Generator::update_cards_team(first_team_name, first_team_current_cards));
     std::cout << "How many cards did " << second_team_name << " receive: " << std::endl;
 		std::getline(cin, int_input);
     second_team_cards = atoi(int_input.c_str());
-    soccer_DB.execute(Token_Generator::update_cards_team(second_team_name, second_team_cards));
+		table_data.clear();
+		soccer_DB.execute(Token_Generator::get_num_team_cards(second_team_name), table_data);
+		int second_team_current_cards = 0;
+		if(table_data.size())
+			second_team_current_cards = second_team_cards + atoi(table_data[0].c_str());
+    soccer_DB.execute(Token_Generator::update_cards_team(second_team_name, second_team_current_cards));
 
     update_player_cards(soccer_DB, first_team_name, first_team_cards);
     update_player_cards(soccer_DB, second_team_name, second_team_cards);
@@ -200,7 +235,7 @@ void Menu::play_game_menu(Database& soccer_DB) {
 void Menu::match_points(Database& soccer_DB, std::string first_team_name, std::string second_team_name, int first_team_goals, int second_team_goals) {
     int first_team_match_points = 0;
     int second_team_match_points = 0;
-    
+    std::vector<std::string> table_data;
     if (first_team_goals > second_team_goals) {
         first_team_match_points = 3;
         second_team_match_points = 0;
@@ -213,7 +248,14 @@ void Menu::match_points(Database& soccer_DB, std::string first_team_name, std::s
         first_team_match_points = 0;
         second_team_match_points = 3;
     }
+		soccer_DB.execute(Token_Generator::get_num_points(first_team_name), table_data);
+		if(table_data.size())
+			first_team_match_points += atoi(table_data[0].c_str());
     soccer_DB.execute(Token_Generator::update_points_team(first_team_name, first_team_match_points));
+		table_data.clear();
+		soccer_DB.execute(Token_Generator::get_num_points(second_team_name), table_data);
+		if(table_data.size())
+			second_team_match_points += atoi(table_data[0].c_str());
     soccer_DB.execute(Token_Generator::update_points_team(second_team_name, second_team_match_points));
 }
 

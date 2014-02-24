@@ -59,13 +59,12 @@ std::string Token_Generator::update_goals_player(string team_name, int jersey_nu
 	std::stringstream token_stream;
 	token_stream << "UPDATE _PLAYER" << " SET goals = " << goals;
 	token_stream << " WHERE  team == \"" << team_name << "\" && jersey_num == " << jersey_num << " ;";
-
 	return token_stream.str();
 }
 
-std::string Token_Generator::update_assists_player(string team_name, int jersey_num, int goals){
+std::string Token_Generator::update_assists_player(string team_name, int jersey_num, int assists){
 	std::stringstream token_stream;
-	token_stream << "UPDATE _PLAYER" << " SET assists = ++" << goals;
+	token_stream << "UPDATE _PLAYER" << " SET assists = " << assists;
 	token_stream << " WHERE  team == \"" << team_name << "\" && jersey_num == " << jersey_num << " ;";
 
 	return token_stream.str();
@@ -73,15 +72,15 @@ std::string Token_Generator::update_assists_player(string team_name, int jersey_
 
 std::string Token_Generator::update_assists_team(string team_name, int assists){
 	std::stringstream token_stream;
-	token_stream << "UPDATE _TEAM" << " SET assists = ++" << assists;
+	token_stream << "UPDATE _TEAM" << " SET assists = " << assists;
 	token_stream << " WHERE  name == \"" << team_name << "\" ;";
 
 	return token_stream.str();
 }
 
-std::string Token_Generator::update_cards_player(string team_name, int jersey_num, int goals){
+std::string Token_Generator::update_cards_player(string team_name, int jersey_num, int cards){
 	std::stringstream token_stream;
-	token_stream << "UPDATE _PLAYER" << " SET cards = " << goals;
+	token_stream << "UPDATE _PLAYER" << " SET cards = " << cards;
 	token_stream << " WHERE  team == \"" << team_name << "\" && jersey_num == " << jersey_num << " ;";
 
 	return token_stream.str();
@@ -104,41 +103,47 @@ std::string Token_Generator::update_points_team(std::string team_name, int point
 
 std::string Token_Generator::get_num_goals(string team_name, int jersey_num){
 	std::stringstream token_stream;
-	token_stream << "Num_goals <- project (goals) (select (team == \"" << team_name;
+	token_stream << "num_goals <- project ( goals ) ( select (team == \"" << team_name;
 	token_stream << "\" && jersey_num == " << jersey_num << ") _PLAYER);";
 	return token_stream.str();
 }
+
 std::string Token_Generator::get_num_assists(string team_name, int jersey_num){
 	std::stringstream token_stream;
 	token_stream << "Num_assists <- project (assists) (select (team == \"" << team_name;
 	token_stream << "\" && jersey_num == " << jersey_num << ") _PLAYER);";
 	return token_stream.str();
 }
+
 std::string Token_Generator::get_num_cards(string team_name, int jersey_num){
 	std::stringstream token_stream;
 	token_stream << "Num_cards <- project (cards) (select (team == \"" << team_name;
 	token_stream << "\" && jersey_num == " << jersey_num << ") _PLAYER);";
 	return token_stream.str();
+
 }
 
-std::string Token_Generator::get_team_goals(string team_name){
+std::string Token_Generator::get_num_points(string team_name){
+	std::stringstream token_stream;
+	token_stream << "Num_points <- project (points) (select (name == \"" << team_name << "\") _TEAM);";
+	return token_stream.str();
+}
+
+std::string Token_Generator::get_num_team_goals(string team_name){
 	std::stringstream token_stream;
 	token_stream << "Team_goals <- project (goals) (select (name == \"" << team_name << "\") _TEAM);";
 	return token_stream.str();
 }
-std::string Token_Generator::get_team_assists(string team_name){
+
+std::string Token_Generator::get_num_team_assists(string team_name){
 	std::stringstream token_stream;
 	token_stream << "Team_assists <- project (assists) (select (name == \"" << team_name << "\") _TEAM);";
 	return token_stream.str();
 }
-std::string Token_Generator::get_team_cards(string team_name){
+
+std::string Token_Generator::get_num_team_cards(string team_name){
 	std::stringstream token_stream;
 	token_stream << "Team_cards <- project (cards) (select (name == \"" << team_name << "\") _TEAM);";
-	return token_stream.str();
-}
-std::string Token_Generator::get_num_points(string team_name){
-	std::stringstream token_stream;
-	token_stream << "Num_points <- project (points) (select (name == \"" << team_name << "\") _TEAM);";
 	return token_stream.str();
 }
 
@@ -150,11 +155,11 @@ std::string Token_Generator::update_num_teams(std::string league_name, int num_t
 	return token_stream.str();
 }
 
-std::string Token_Generator::view_player_stats(std::string player_name, int jersey_num, string team_name) {
+std::string Token_Generator::view_player_stats(int jersey_num, string team_name) {
     std::stringstream token_stream;
     
-    token_stream << player_name << " <- select (jersey_num == " << jersey_num;
-    token_stream << " && team == " << team_name << ") _PLAYER;";
+    token_stream << "SHOW ( select (jersey_num == " << jersey_num;
+    token_stream << " && team == " << team_name << ") _PLAYER);";
     
     return token_stream.str();
 }
@@ -192,7 +197,7 @@ std::string Token_Generator::view_team_starting_roster(string team_name) {
     
     std::stringstream token_stream;
     
-    token_stream << "SHOW (project (name, jersey_num) (select ( team == \"" << team_name << "\" && starter == \"yes\" ) _PLAYER ));";
+    token_stream << "SHOW (project (name, jersey_num, position) (select ( team == \"" << team_name << "\" && starter == \"yes\" ) _PLAYER ));";
     return token_stream.str();
 }
 

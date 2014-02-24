@@ -66,13 +66,13 @@ public:
 		static std::string get_num_goals(string team_name, int jersey_num);
 		static std::string get_num_assists(string team_name, int jersey_num);
 		static std::string get_num_cards(string team_name, int jersey_num);
-		
-		static std::string get_team_goals(string team_name);
-		static std::string get_team_assists(string team_name);
-		static std::string get_team_cards(string team_name);
 		static std::string get_num_points(string team_name);
 
-    static std::string view_player_stats(std::string player_name, int jersey_num, string team_name);
+		static std::string get_num_team_goals(string team_name);
+		static std::string get_num_team_assists(string team_name);
+		static std::string get_num_team_cards(string team_name);
+
+    static std::string view_player_stats(int jersey_num, string team_name);
     
     static std::string view_team_stats(string team_name);
     
