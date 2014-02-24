@@ -14,6 +14,7 @@ namespace Team_Project_1_Database{
         calls either the command or query function
         */
         static void program(std::string input, database tables);
+				static void program(std::string input, database tables, std::vector<std::string>& result);
     private:
         friend class Relation;
 
@@ -100,6 +101,11 @@ namespace Team_Project_1_Database{
         static void query(
             std::string input,
             database tables);
+
+				static void query(
+            std::string input,
+            database tables,
+						std::vector<std::string>& result);
 
         /*
         Expr function that takes a expression as input and returns the corresponding table

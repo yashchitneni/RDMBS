@@ -34,18 +34,6 @@ bool Integer::operator!=(const Attribute& rhs) const {
         return !(*this == rhs);
 }
 
-Attribute& Integer::operator+(const std::string rhs){
-	value += atoi(rhs.c_str());
-	return *this;
-}
-
-void Integer::operator++(){
-	value++;
-}
-void Integer::operator--(){
-	value--;
-}
-
 Var_Char::Var_Char(const Var_Char& other){
         value = other.get_value();
 }
@@ -76,17 +64,4 @@ bool Var_Char::operator==(const Attribute& rhs) const {
     
 bool Var_Char::operator!=(const Attribute& rhs) const {
     return !(*this == rhs);
-}
-
-Attribute& Var_Char::operator+(const std::string rhs){
-	value += rhs;
-	return *this;
-}
-
-void Var_Char::operator++(){
-	return;
-}
-
-void Var_Char::operator--(){
-	return;
 }
