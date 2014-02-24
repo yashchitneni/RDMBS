@@ -17,6 +17,7 @@ namespace Team_Project_1_Database{
         
         //Takes input from user and passes it to parser.
         void execute(std::string input);
+				void execute(std::string input, std::vector<std::string>& result);
     };
 }
 

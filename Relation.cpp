@@ -537,7 +537,7 @@ int Relation::find_key(Attribute* attribute, tuple keys){
 }
 
 bool Relation::update(std::vector<std::string> attr_list, std::vector<std::string> conjunctions){
-    std::vector<std::pair<tuple, tuple>> new_rows; //stores the rows that will replace outdated rows in relation
+  std::vector<std::pair<tuple, tuple>> new_rows; //stores the rows that will replace outdated rows in relation
     std::vector<tuple*> gravestones; //stores the keys of rows that are to be deleted before new rows are inserted
 
     /*
@@ -551,7 +551,7 @@ bool Relation::update(std::vector<std::string> attr_list, std::vector<std::strin
 
             if (this->meets_conjunction(*conj_iter, *row_iter)){
                 std::vector<std::pair<std::string, Attribute*>> changes; //Stores the attribute-name of the attribute to change as well as the new attribute.
-                std::regex reg_equal("([\\?\"?\\w_\"]+)(?:\\s*=\\s*)([\\?\"?\\w_\"]+)");
+                std::regex reg_equal("([\"\\w_]+)(?:\\s*=\\s*)([\"\\w_]+)");
                 std::smatch equ_match;
 
                 for (auto attr_iter = attr_list.begin(); attr_iter != attr_list.end(); ++attr_iter){

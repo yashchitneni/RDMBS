@@ -32,6 +32,31 @@ void Grammar::program(
     return;
 }
 
+void Grammar::program(
+    std::string input,
+    database tables,
+		std::vector<std::string>& result){
+
+    std::regex reg_semi_colon(";");
+    std::regex reg_cmd("OPEN|CLOSE|WRITE|EXIT|SHOW|(CREATE TABLE)|UPDATE|(INSERT INTO)|(DELETE FROM)");
+    std::smatch m;
+
+    if (std::regex_search(input, m, reg_semi_colon)){
+        input = m.prefix().str();
+    }
+    else{
+        return;
+    }
+
+    if (std::regex_search(input, reg_cmd)){
+        command(input, tables);
+        return;
+    }
+
+    query(input, tables, result);
+    return;
+}
+
 void Grammar::command(
     std::string input,
     database tables){
@@ -249,7 +274,7 @@ void Grammar::close_cmd(
 
 void Grammar::write_cmd(std::string input){
     std::string file_name = input + ".db";
-    std::ofstream table_file(file_name);
+    std::ofstream table_file(file_name, std::ios_base::ate);
 }
 
 void Grammar::show_cmd(Relation& table){
@@ -320,10 +345,31 @@ void Grammar::query(
     std::string relation_name = m.prefix().str();
     std::string expr_arg = m.suffix().str();
 
-    std::printf("%s: %s\n", relation_name.c_str(), expr_arg.c_str());
-
     Relation new_relation = expr(m.suffix().str(), tables);
 
+    new_relation.set_name(relation_name);
+    tables.push_back(new_relation);
+}
+
+void Grammar::query(
+    std::string input,
+    database tables,
+		std::vector<std::string>& result){
+
+    std::regex reg_rel_name("\\s*<-\\s*");
+    std::smatch m;
+
+    std::regex_search(input, m, reg_rel_name);
+
+    std::string relation_name = m.prefix().str();
+    std::string expr_arg = m.suffix().str();
+
+    Relation new_relation = expr(m.suffix().str(), tables);
+		for(auto row: new_relation.t){
+			for(auto attr : row.second){
+				result.push_back(attr->get_value());
+			}
+		}
     new_relation.set_name(relation_name);
     tables.push_back(new_relation);
 }

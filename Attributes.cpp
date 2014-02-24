@@ -39,6 +39,10 @@ Attribute& Integer::operator+(const std::string rhs){
 	return *this;
 }
 
+void Integer::operator+=(const std::string rhs){
+	value += atoi(rhs.c_str());
+}
+
 void Integer::operator++(){
 	value++;
 }
@@ -81,6 +85,10 @@ bool Var_Char::operator!=(const Attribute& rhs) const {
 Attribute& Var_Char::operator+(const std::string rhs){
 	value += rhs;
 	return *this;
+}
+
+void Var_Char::operator+=(const std::string rhs){
+	value += rhs;
 }
 
 void Var_Char::operator++(){

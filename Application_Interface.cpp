@@ -45,42 +45,48 @@ int main() {
 		case 0:
 			std::cout << "Error reading input, try again" << std::endl;
 			break;
-		case 1: 
-			Menu::create_league_menu(soccer_DB);
+		case 1:
+			Menu::view_league(soccer_DB);
 			break;
-		case 2: 
-			Menu::create_team_menu(soccer_DB);
+		case 2:
+			Menu::view_team(soccer_DB);
 			break;
-		case 3: 
-			Menu::create_player_menu(soccer_DB);
+		case 3:
+			Menu::view_player(soccer_DB);
 			break;
 		case 4: 
-			Menu::play_game_menu(soccer_DB);
+			Menu::create_league_menu(soccer_DB);
 			break;
 		case 5: 
-			Menu::player_stats_menu(soccer_DB);
+			Menu::create_team_menu(soccer_DB);
 			break;
 		case 6: 
-			Menu::team_stats_menu(soccer_DB);
+			Menu::create_player_menu(soccer_DB);
 			break;
 		case 7: 
-			Menu::league_stats_menu(soccer_DB);
+			Menu::play_game_menu(soccer_DB);
 			break;
 		case 8: 
+			Menu::player_stats_menu(soccer_DB);
+			break;
+		case 9: 
+			Menu::team_stats_menu(soccer_DB);
+			break;
+		case 10: 
+			Menu::league_stats_menu(soccer_DB);
+			break;
+		case 11: 
 			Menu::transfer_player(soccer_DB);
 			break;
-		case 9: exit(0);
+		case 12: exit(0);
 		}
 	}
 }
 
 void open_database(){
 	soccer_DB.execute("OPEN _LEAGUE;");
-	soccer_DB.execute("SHOW _LEAGUE;");
 	soccer_DB.execute("OPEN _TEAM;");
-	soccer_DB.execute("SHOW _TEAM;");
 	soccer_DB.execute("OPEN _PLAYER;");
-	soccer_DB.execute("SHOW _PLAYER;");
 	std::cout << "Players, Teams, and Leagues have been loaded.\n";
 	return;
 }
@@ -92,8 +98,6 @@ void close_database(){
 	std::cout << "Players, Teams, and Leagues have been saved.\n";
 	return;
 }
-
-
 
 
 
