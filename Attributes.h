@@ -1,8 +1,8 @@
 /*
-class: Attributes
-Abstract class with inheriting subclasses Integer and Var_Char that
-act as containers for ints and strings respectively
-*/
+ class: Attributes
+ Abstract class with inheriting subclasses Integer and Var_Char that
+ act as containers for ints and strings respectively
+ */
 
 #ifndef _ATTR
 #define _ATTR
@@ -24,11 +24,12 @@ namespace Team_Project_1_Database{
         virtual bool operator<(const Attribute& rhs) const= 0;
         virtual bool operator==(const Attribute& rhs) const = 0;
         virtual bool operator!=(const Attribute& rhs) const = 0;
-				virtual Attribute& operator+(const std::string rhs) = 0;
-				virtual void operator++() = 0;
-				virtual void operator--() = 0;
+        virtual Attribute& operator+(const std::string rhs) = 0;
+        virtual void operator+=(const std::string rhs) = 0;
+        virtual void operator++() = 0;
+        virtual void operator--() = 0;
     };
-
+    
     class Integer : public Attribute{
         int value;
     public:
@@ -43,11 +44,12 @@ namespace Team_Project_1_Database{
         bool operator<(const Attribute& rhs) const;
         bool operator==(const Attribute& rhs) const;
         bool operator!=(const Attribute& rhs) const;
-				Attribute& operator+(const std::string rhs);
-				void operator++();
-				void operator--();
+        Attribute& operator+(const std::string rhs);
+        void operator+=(const std::string rhs);
+        void operator++();
+        void operator--();
     };
-
+    
     class Var_Char : public Attribute{
         std::string value;
     public:
@@ -62,9 +64,10 @@ namespace Team_Project_1_Database{
         bool operator<(const Attribute& rhs) const;
         bool operator==(const Attribute& rhs) const;
         bool operator!=(const Attribute& rhs) const;
-				Attribute& operator+(const std::string rhs);
-				void operator++();
-				void operator--();
+        Attribute& operator+(const std::string rhs);
+        void operator+=(const std::string rhs);
+        void operator++();
+        void operator--();
     };
 }
 #endif

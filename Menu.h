@@ -12,16 +12,17 @@
 #include <iostream>
 #include "Database.h"
 
-
-
 namespace Team_Project_1_Database{
     class Menu {
     public:
+        /* Shows original 12 options */
         static void original_menu(Database& soccer_DB);
-
+        
         static void create_league_menu(Database& soccer_DB);
         static void create_team_menu(Database& soccer_DB);
         static void create_player_menu(Database& soccer_DB);
+        
+        static void 
         
         static void play_game_menu(Database& soccer_DB);
         
@@ -37,7 +38,14 @@ namespace Team_Project_1_Database{
         static void team_stats_menu(Database& soccer_DB);
         static void league_stats_menu(Database& soccer_DB);
         
+        static void match_points(Database& soccer_DB, std::string first_team_name, std::string second_team_name, int first_team_goals, int second_team_goals);
+        
         static void transfer_player(Database& soccer_DB);
+        
+        /* Shows respective tables completely */
+        static void view_league(Database& soccer_DB);
+        static void view_team(Database& soccer_DB);
+        static void view_player(Database& soccer_DB);
     };
 }
 #endif /* defined(__RDBMS__Menu__) */
