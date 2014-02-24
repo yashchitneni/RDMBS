@@ -39,8 +39,6 @@ void Menu::create_league_menu(Database& soccer_DB) {
     std::cin >> sponsor_name;
     
     soccer_DB.execute(Token_Generator::create_league(league_name, country_name, sponsor_name));
-    
-    /* What do we do about points */
 }
 
 void Menu::create_team_menu(Database& soccer_DB) {
@@ -219,5 +217,20 @@ void Menu::league_stats_menu(Database& soccer_DB) {
 }
 
 void Menu::transfer_player(Database& soccer_DB) {
+    std::string original_team_name;
+    std::string new_team_name;
+    int player_number;
+    int new_player_number;
     
+    std::cout << "What team do you want to transfer a player from: " << std::endl;
+    std::getline(cin, original_team_name);
+    
+    std::cout << "Which player do you want to transfer. Please enter his jersey number: " << std::endl;
+    std::cin >> player_number;
+    
+    std::cout << "What team do you want to transfer him to: " << std::endl;
+    std::getline(cin, new_team_name);
+    
+    std::cout << "Please pick a new number for him that is not part of this roster: " << std::endl;
+    std::cin >> new_player_number;
 }

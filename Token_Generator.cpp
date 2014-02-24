@@ -154,11 +154,14 @@ std::string Token_Generator::view_league_teams(string league_name) {
     return token_stream.str();
 }
 
-std::string transfer_player(string player_name, string team_from, string team_to /*data, like player to transfer, from/to, etc.*/) {
+std::string transfer_player(int player_num, string team_from, string team_to) {
+    std::stringstream token_stream;
     
-    //will have to update team AND jersey num...
+    token_stream << "UPDATE _PLAYER" << " SET team = " << team_to;
     
-    return "";
+    token_stream << "UPDATE _PLAYER" << " SET jersey_num = " << player_num;
+    
+    return token_stream.str();
 }
 
 
