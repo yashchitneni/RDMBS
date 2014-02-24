@@ -365,6 +365,7 @@ void Grammar::query(
     std::string expr_arg = m.suffix().str();
 
     Relation new_relation = expr(m.suffix().str(), tables);
+		result.clear();
 		for(auto row: new_relation.t){
 			for(auto attr : row.second){
 				result.push_back(attr->get_value());

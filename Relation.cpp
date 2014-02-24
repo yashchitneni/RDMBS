@@ -257,6 +257,10 @@ bool Relation::meets_conjunction(
 }
 
 int Relation::header_pos(std::string name){
+	std::regex reg_attr("[\\w_]+");
+	std::smatch m;
+	if(std::regex_search(name, m, reg_attr))
+		name = m.str();
     for (unsigned int k = 0; k < header.size(); k++){
         if (header[k] == name || (header[k] == "%" + name)){
             return k;
@@ -537,225 +541,45 @@ int Relation::find_key(Attribute* attribute, tuple keys){
 }
 
 bool Relation::update(std::vector<std::string> attr_list, std::vector<std::string> conjunctions){
-  std::vector<std::pair<tuple, tuple>> new_rows; //stores the rows that will replace outdated rows in relation
-    std::vector<tuple*> gravestones; //stores the keys of rows that are to be deleted before new rows are inserted
+  	std::regex reg_amp("\\s*&&\\s*");
+	std::regex reg_equal("([_[:alpha:]][_\\w*]+)(?:\\s*=\\s*)(?:\"?)(\\w*)(?:\"?)");
+	std::smatch m;
+	std::vector<std::pair<int, std::string>> changes;
+	for (auto attr_iter = attr_list.begin(); attr_iter != attr_list.end(); ++attr_iter){
+		if (std::regex_search(*attr_iter, m, reg_equal)){
+			std::string attr_name = m[1].str();
+			std::string attr_string = m[2].str();
+			int pos_header = header_pos(attr_name);
+			if (pos_header != -1)
+				changes.push_back(std::pair<int, std::string>(pos_header, attr_string));
+		}
+	}
+	for (auto conj : conjunctions){
+		std::vector<std::string> compares;
+		while (std::regex_search(conj, m, reg_amp)){
+			compares.push_back(m.prefix().str());
+			conj = m.suffix().str();
+		}
+		compares.push_back(conj);
+		for (auto row_iter = t.begin(); row_iter != t.end(); ++row_iter){
+			bool update_row = true;
+			for (auto comp_iter = compares.begin(); comp_iter != compares.end() && update_row; ++comp_iter){
+				if (!meets_condition(*comp_iter, *row_iter)){
+					update_row = false;
+				}
+			}
+			if (update_row){
+				for (auto update_attr : changes){
+					int pos_header = update_attr.first;
+					std::string new_value = update_attr.second;
+					row_iter->second[pos_header]->set_value(new_value);
+					if (row_iter->second[pos_header]->get_value() != new_value)
+						std::printf("Error updating value\n");
+				}
+			}
+		}
+	}
 
-    /*
-    Check which rows satisfy the condition of the comparisons, then modify said rows according to attr_list
-    */
-    auto conj_iter = conjunctions.begin();
-    while (conj_iter != conjunctions.end()){
-
-        auto row_iter = t.begin();
-        while (row_iter != t.end()){
-
-            if (this->meets_conjunction(*conj_iter, *row_iter)){
-                std::vector<std::pair<std::string, Attribute*>> changes; //Stores the attribute-name of the attribute to change as well as the new attribute.
-                std::regex reg_equal("([\"\\w_]+)(?:\\s*=\\s*)([\"\\w_]+)");
-                std::smatch equ_match;
-
-                for (auto attr_iter = attr_list.begin(); attr_iter != attr_list.end(); ++attr_iter){
-
-                    if (std::regex_search(*attr_iter, equ_match, reg_equal)){
-                        std::string attr_name;
-                        std::string attr_string;
-                        int attr_int;
-                        std::string operand1 = equ_match[1].str();
-                        std::string operand2 = equ_match[2].str();
-
-                        //Check that the first operand is of the type <attribute-name>
-                        if (operand1[0] != '\"'){
-                            char* end;
-                            attr_int = strtol(operand1.c_str(), &end, 10);
-
-                            if (end != operand1.c_str()){
-                                printf("Error After SET: expected type <attribute-name> for first argument, but got type <literal>.");
-                                return false;
-                            }
-
-                            attr_name = operand1;
-                        }
-                        else{
-                            printf("Error After SET: expected type <attribute-name> for first argument, but got type <literal>.");
-                            return false;
-                        }
-
-                        //Check that the second operand is of the type <literal>
-                        if (operand2[0] != '\"'){
-                            char* end;
-                            attr_int = strtol(operand2.c_str(), &end, 10);
-
-                            if (end == operand2.c_str()){
-                                printf("Error After SET: expected type <literal> for second argument, but got type <attribute-name>.");
-                                return false;
-                            }
-                        }
-                        else{
-                            attr_string = operand2;
-                        }
-
-                        if (attr_name.size() <= 0){
-                            printf("Error: attribute-name not initialized");
-                        }
-
-                        Attribute* attribute;
-
-                        if (attr_string.size() >= 1){
-                            attribute = new Var_Char(attr_string.substr(1, attr_string.size() - 2));
-                        }
-                        else {
-                            attribute = new Integer(attr_int);
-                        }
-
-                        changes.push_back(std::make_pair(std::string(attr_name), attribute));
-                    }
-                }
-
-                tuple new_keys;
-                tuple new_row;
-
-                //Copy the current row's contents into new_row
-                int row_attr_iter = 0;
-                while (row_attr_iter < row_iter->second.size()){
-                    Attribute* current_attribute;
-
-                    if (row_iter->second[row_attr_iter]->get_class() == Attribute::attr_type::INTEGER){
-                        current_attribute = new Integer(*dynamic_cast<Integer*>(row_iter->second[row_attr_iter]));
-                    }
-                    else{
-                        current_attribute = new Var_Char(*dynamic_cast<Var_Char*>(row_iter->second[row_attr_iter]));
-                    }
-
-                    new_row.push_back(current_attribute);
-                    ++row_attr_iter;
-                }
-
-                bool key_changed = false;
-                //Loop through changes, applying them to new_keys and new_row where appropriate
-
-                for (auto change_iter = changes.begin(); change_iter != changes.end(); ++change_iter){
-                    std::string& change_attr = change_iter->first;
-
-                    //Checks if the key will be changed with the change of an attribute
-                    if (this->is_key(this->header_pos(change_attr))){
-                        int key_pos = this->find_key(row_iter->second[this->header_pos(change_attr)], row_iter->first);
-
-                        for (int key_iter = 0; key_iter < row_iter->first.size(); ++key_iter){
-
-                            if (key_iter != key_pos){
-                                Attribute* old_key;
-
-                                if (row_iter->first[key_iter]->get_class() == Attribute::attr_type::INTEGER){
-                                    old_key = new Integer(*dynamic_cast<Integer*>(row_iter->first[key_iter]));
-                                }
-                                else{
-                                    old_key = new Var_Char(*dynamic_cast<Var_Char*>(row_iter->first[key_iter]));
-                                }
-
-                                new_keys.push_back(old_key);
-                            }
-                            else{
-                                Attribute* new_key;
-
-                                if (change_iter->second->get_class() == row_iter->first[key_iter]->get_class()){
-
-                                    if (change_iter->second->get_class() == Attribute::attr_type::INTEGER){
-                                        new_key = new Integer(*dynamic_cast<Integer*>(change_iter->second));
-                                    }
-                                    else{
-                                        new_key = new Var_Char(*dynamic_cast<Var_Char*>(change_iter->second));
-                                    }
-                                }
-                                else{
-                                    printf("Error: attribute reassignment has a type conflict.");
-                                    return false;
-                                }
-
-                                new_keys.push_back(new_key);
-                            }
-                        }
-                        key_changed = true;
-                    }
-                    Attribute* new_attr;
-
-                    if (change_iter->second->get_class() == row_iter->second[this->header_pos(change_iter->first)]->get_class()){
-
-                        if (change_iter->second->get_class() == Attribute::attr_type::INTEGER){
-                            new_attr = new Integer(*dynamic_cast<Integer*>(change_iter->second));
-                        }
-                        else{
-                            new_attr = new Var_Char(*dynamic_cast<Var_Char*>(change_iter->second));
-                        }
-                    }
-                    else{
-                        printf("Error: attribute reassignment has a type conflict.");
-                        return false;
-                    }
-                    new_row[this->header_pos(change_attr)] = new_attr;
-                }
-
-                if (key_changed){
-                    new_rows.push_back(std::make_pair(new_keys, new_row));
-                    tuple* gravestone = new tuple;
-
-                    int row_key_iter = 0;
-                    while (row_key_iter < row_iter->first.size()){
-                        Attribute* current_key;
-
-                        if (row_iter->first[row_key_iter]->get_class() == Attribute::attr_type::INTEGER){
-                            current_key = new Integer(*dynamic_cast<Integer*>(row_iter->second[row_key_iter]));
-                        }
-                        else{
-                            current_key = new Var_Char(*dynamic_cast<Var_Char*>(row_iter->second[row_key_iter]));
-                        }
-
-                        gravestone->push_back(current_key);
-                        ++row_key_iter;
-                    }
-
-                    gravestones.push_back(gravestone);
-                    ++row_iter;
-                }
-                else{
-                    tuple old_keys;
-
-                    int row_key_iter = 0;
-                    while (row_key_iter < row_iter->first.size()){
-                        Attribute* current_key;
-
-                        if (row_iter->first[row_key_iter]->get_class() == Attribute::attr_type::INTEGER){
-                            current_key = new Integer(*dynamic_cast<Integer*>(row_iter->second[row_key_iter]));
-                        }
-                        else{
-                            current_key = new Var_Char(*dynamic_cast<Var_Char*>(row_iter->second[row_key_iter]));
-                        }
-
-                        old_keys.push_back(current_key);
-                        ++row_key_iter;
-                    }
-
-                    new_rows.push_back(std::make_pair(old_keys, new_row));
-                    ++row_iter;
-                }
-            }
-            else{
-                ++row_iter;
-            }
-        }
-        ++conj_iter;
-    }
-
-    //Delete the outdated rows
-    int grave_iter = 0;
-    while (grave_iter < gravestones.size()){
-        t.erase(*gravestones[grave_iter]);
-        ++grave_iter;
-    }
-
-    //Insert new rows
-    for (auto new_row_it = new_rows.begin(); new_row_it != new_rows.end(); ++new_row_it){
-        t[new_row_it->first] = new_row_it->second;
-    }
     return true;
 }
 
@@ -866,7 +690,7 @@ Relation* Relation::projection(std::vector<std::string> attr_list){
         }
     }
 
-    Relation* new_relation = new Relation("test", projection_key, projection_header);
+    Relation* new_relation = new Relation("", projection_key, projection_header);
 
     //For each projected column, push the attribute at that position from original row to the new row, then add the row to the new relation's table
     for (auto table_iter = t.begin(); table_iter != t.end(); ++table_iter){
