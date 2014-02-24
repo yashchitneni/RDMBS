@@ -120,9 +120,20 @@ std::string Token_Generator::get_num_cards(string team_name, int jersey_num){
 	token_stream << "\" && jersey_num == " << jersey_num << ") _PLAYER);";
 	return token_stream.str();
 }
+
 std::string Token_Generator::get_team_goals(string team_name){
 	std::stringstream token_stream;
 	token_stream << "Team_goals <- project (goals) (select (name == \"" << team_name << "\") _TEAM);";
+	return token_stream.str();
+}
+std::string Token_Generator::get_team_assists(string team_name){
+	std::stringstream token_stream;
+	token_stream << "Team_assists <- project (assists) (select (name == \"" << team_name << "\") _TEAM);";
+	return token_stream.str();
+}
+std::string Token_Generator::get_team_cards(string team_name){
+	std::stringstream token_stream;
+	token_stream << "Team_cards <- project (cards) (select (name == \"" << team_name << "\") _TEAM);";
 	return token_stream.str();
 }
 std::string Token_Generator::get_num_points(string team_name){
